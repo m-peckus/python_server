@@ -1,0 +1,9 @@
+# start uvicorn
+python -m uvicorn python_api:app --reload
+
+# start virtual environement
+source venv/bin/activate
+
+# create virtual environement
+python3 -m venv venv
+

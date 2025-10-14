@@ -9,3 +9,5 @@ __pycache__/
 *.pyc
 .DS_Store
 .env
+# Ignore project commands file
+ project_commands.txt
