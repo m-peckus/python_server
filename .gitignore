@@ -1,0 +1,11 @@
+# .gitignore content
+# --------------------
+
+# Virtual environment folder
+venv/
+
+# Other common Python files to ignore
+__pycache__/
+*.pyc
+.DS_Store
+.env
