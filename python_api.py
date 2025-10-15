@@ -71,16 +71,7 @@ async def get_gateway_status():
     # Calculate restart time using the CORRECT 'timedelta'
     last_restart_time = datetime.now(timezone.utc) - timedelta(seconds=uptime_seconds)
     
-   # return {
-    #    "status": "ok",
-    #    "service": "Mock Payment Gateway",
-     #   "version": "v1.0.0",
-     #   "message": "All systems operational.",
-     #   "metrics": {
-     #       "totalTransactions": total_transactions,
-     #       "lastRestart": last_restart_time.isoformat().replace('+00:00', 'Z')
-     #   }
-    #}
+   
     response_data = {
         "status": "ok",
         "service": "Mock Payment Gateway",
