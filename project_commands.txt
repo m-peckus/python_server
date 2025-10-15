@@ -14,3 +14,25 @@ curl -X POST http://127.0.0.1:8000/api/v1/payments/charge -H "Content-Type: appl
        "currency": "EUR", 
        "details": "Subscription payment"
    }'
+
+# call create payment endpoint & send webhook
+curl -X POST http://127.0.0.1:8000/api/v1/payments/charge \
+-H "Content-Type: application/json" \
+-d '{
+    "customerName": "Jane Doe", 
+    "paymentAmount": 49.99, 
+    "currency": "EUR", 
+    "details": "Subscription payment",
+    "webhookUrl": "https://webhook-test.com/aa8bf046900ab914b82788e3d4df32ca" 
+}'
+
+# call create payment & send a webhook 
+curl -X POST http://127.0.0.1:8000/api/v1/payments/charge \
+-H "Content-Type: application/json" \
+-d '{
+    "customerName": "Acme Corp",
+    "paymentAmount": 100.00,
+    "currency": "USD",
+    "details": "Invoice 12345",
+    "webhookUrl": "https://webhook-test.com/aa8bf046900ab914b82788e3d4df32ca"
+}' 

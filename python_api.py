@@ -1,13 +1,16 @@
 # python_api.py
 
 # dependencies
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, BackgroundTasks
 import time
 from datetime import datetime, timezone, timedelta 
 import httpx 
 import uuid # For generating unique transaction IDs
 from pydantic import BaseModel, Field, validator
 from typing import Optional
+
+
+app = FastAPI()
 
 
 # --- Pydantic Schema ---
@@ -18,7 +21,7 @@ class PaymentCharge(BaseModel):
     paymentAmount: float = Field(..., gt=0, description="The amount to charge.")
     currency: str = Field(..., max_length=3, description="Currency code (e.g., USD, EUR).")
     details: Optional[str] = Field(None, description="Optional payment details.") 
-    webhookUrl: Optional[str] = Field(None, description="Optional URL for receiving notifications.")
+    webhookUrl: Optional[str] = Field(None, description="webhook_url")
 
     # Add a custom validator to check for non-whitespace content
     @validator('customerName')
@@ -27,8 +30,6 @@ class PaymentCharge(BaseModel):
         if not value.strip():
             raise ValueError('Customer name cannot be empty or contain only whitespace.')
         return value.strip() # Return the stripped value for use in the transaction
-
-app = FastAPI()
 
 # Mock database
 payments = {}
@@ -40,17 +41,17 @@ transactions = {}
 # Store the application start time
 app_start_time = time.monotonic()
 
-# Define the webhook URL
+# Define the webhook URL (Used for the /status endpoint only)
 WEBHOOK_URL = "https://webhook-test.com/aa8bf046900ab914b82788e3d4df32ca"
 
-# Function to send the webhook message
-async def send_status_webhook(status_data: dict):
+# MODIFICATION 2: Refactored function to accept 'url' dynamically
+async def dispatch_webhook(url: str, payload: dict):
     # This task is performed in the background
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                WEBHOOK_URL,
-                json=status_data,
+                url, # Use the dynamically passed URL
+                json=payload,
                 timeout=5.0
             )
             # You can log the webhook response for debugging
@@ -62,7 +63,7 @@ async def send_status_webhook(status_data: dict):
 
 # GET /api/v1/status - Check the status of the gateway
 @app.get("/api/v1/status")
-async def get_gateway_status():
+async def get_gateway_status(background_tasks: BackgroundTasks):
     total_transactions = len(transactions)
 
     # Calculate uptime
@@ -83,8 +84,8 @@ async def get_gateway_status():
         }
     }
 
- # Call the webhook function AFTER preparing the response data
-    await send_status_webhook(response_data)
+     # MODIFICATION 4: Use add_task for non-blocking dispatch
+    background_tasks.add_task(dispatch_webhook, WEBHOOK_URL, response_data)
     
     # The endpoint returns the status response, which is "200 OK"
     return response_data
@@ -92,7 +93,7 @@ async def get_gateway_status():
 
 # --- Endpoint: POST /api/v1/payments/charge ---
 @app.post("/api/v1/payments/charge", status_code=status.HTTP_201_CREATED) # MODIFICATION: Use POST and 201 Created
-async def process_new_payment(charge: PaymentCharge):
+async def process_new_payment(charge: PaymentCharge, background_tasks: BackgroundTasks):
     
     # Generate Transaction ID and Timestamp
     # Python's UUID is a robust replacement for an incremental counter in a real-world API
@@ -119,8 +120,25 @@ async def process_new_payment(charge: PaymentCharge):
 
     print(f"[CHARGE] New transaction created: {transaction_id}")
 
+       # MODIFICATION 6: ASYNCHRONOUSLY Dispatch Webhook after successful transaction
+    if charge.webhookUrl:
+        webhook_payload = {
+            "event": 'payment.succeeded',
+            "id": new_transaction["id"],
+            "timestamp": created_at,
+            "data": {
+                "customerName": new_transaction["customerName"],
+                "amount": new_transaction["amount"],
+                "currency": new_transaction["currency"]
+            }
+        }
+        # Schedule the webhook dispatch using the URL provided in the request body
+        background_tasks.add_task(dispatch_webhook, charge.webhookUrl, webhook_payload)
+
+
+
+
     # Respond with 201 Created and transaction details
-    # Only return the data required for the client's confirmation
     return {
         "id": new_transaction["id"],
         "customerName": new_transaction["customerName"],
