@@ -7,3 +7,10 @@ source venv/bin/activate
 # create virtual environement
 python3 -m venv venv
 
+# call create payment endpoint
+curl -X POST http://127.0.0.1:8000/api/v1/payments/charge -H "Content-Type: application/json" -d '{
+       "customerName": "Jane Doe", 
+       "paymentAmount": 49.99, 
+       "currency": "EUR", 
+       "details": "Subscription payment"
+   }'
