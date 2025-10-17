@@ -14,3 +14,6 @@ __pycache__/
 
 # MongoDB credentials file
 mongoDBpasswords
+
+# Project curl commands
+project_commands.txt
