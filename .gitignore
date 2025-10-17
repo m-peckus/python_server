@@ -11,3 +11,6 @@ __pycache__/
 .env
 # Ignore project commands file
  project_commands.txt
+
+# MongoDB credentials file
+mongoDBpasswords

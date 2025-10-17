@@ -1,5 +1,12 @@
-# start uvicorn
+# start uvicorn with python_api file
 python -m uvicorn python_api:app --reload
+
+# start uviconr with MongoDB
+uvicorn mongoDB_python_api:app --reload
+
+# start uvicorn with API_KEYS & MongoDB
+uvicorn API_keys_mongoDB_python_api:app --reload
+
 
 # start virtual environement
 source venv/bin/activate
