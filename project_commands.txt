@@ -25,3 +25,15 @@ curl -X POST "http://127.0.0.1:8000/api/v1/payments/charge" \
 # IMPORTANT: REPLACE <TRANSACTION_ID> with the actual ID you copied from the POST response body
 curl -X GET "http://127.0.0.1:8000/api/v1/payments/REPLACE_THIS_TRANSACTION_ID>" \
 -H "X-API-Key: PK_LIVE_JD_XYZ123"
+
+# create payment for ACME Corporation with API KEY & send a webhook
+curl -X POST "http://127.0.0.1:8000/api/v1/payments/charge" \
+-H "Content-Type: application/json" \
+-H "X-API-Key: PK_LIVE_AC_321ZYX" \
+-d '{
+  "customerName": "ACME Project Falcon",
+  "paymentAmount": 5500.99,
+  "currency": "USD",
+  "details": "Large corporate payment test for ACME Corp",
+  "webhookUrl": "https://webhook-test.com/aa8bf046900ab914b82788e3d4df32ca"
+}'
