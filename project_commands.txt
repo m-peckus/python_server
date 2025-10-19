@@ -1,15 +1,23 @@
 # start uvicorn with API_KEYS & MongoDB
+
 uvicorn API_keys_mongoDB_python_api:app --reload
 
 
 # start virtual environement
+
 source venv/bin/activate
 
 # create virtual environement
+
 python3 -m venv venv
+
+# check API status
+
+curl -X GET "http://127.0.0.1:8000/api/v1/status"
 
 
 # create payment John Doe with API KEY & send a webhook
+
 curl -X POST "http://127.0.0.1:8000/api/v1/payments/charge" \
 -H "Content-Type: application/json" \
 -H "X-API-Key: PK_LIVE_JD_XYZ123" \
@@ -23,10 +31,12 @@ curl -X POST "http://127.0.0.1:8000/api/v1/payments/charge" \
 
 # Payload to Retrieve the Payment Data (GET) for JOHN DOE (API_KEY_CORELATION)
 # IMPORTANT: REPLACE <TRANSACTION_ID> with the actual ID you copied from the POST response body
+
 curl -X GET "http://127.0.0.1:8000/api/v1/payments/REPLACE_THIS_TRANSACTION_ID>" \
 -H "X-API-Key: PK_LIVE_JD_XYZ123"
 
 # create payment for ACME Corporation with API KEY & send a webhook
+
 curl -X POST "http://127.0.0.1:8000/api/v1/payments/charge" \
 -H "Content-Type: application/json" \
 -H "X-API-Key: PK_LIVE_AC_321ZYX" \
