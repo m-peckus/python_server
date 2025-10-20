@@ -1,6 +1,6 @@
-# start uvicorn with API_KEYS & MongoDB
+# start uvicorn with current project version
 
-uvicorn API_keys_mongoDB_python_api:app --reload
+uvicorn new_api_file:app --reload
 
 
 # start virtual environement
