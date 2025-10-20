@@ -58,67 +58,11 @@ curl -X GET "http://127.0.0.1:8000/api/v1/payments/query?minAmount=100&maxAmount
 Sort by date descending (newest first - This is the default behavior)
 
 curl -X GET "http://127.0.0.1:8000/api/v1/payments/query?sortBy=createdAt&sortOrder=desc" \
-     -H "X-API-Key: PK_LIVE_AC_321ZYX"
 
 Sort by date ascending (oldest first)
 
 curl -X GET "http://127.0.0.1:8000/api/v1/payments/query?sortBy=createdAt&sortOrder=asc" \
      -H "X-API-Key: PK_LIVE_AC_321ZYX"
 
-
-
-
-This is an excellent step\! Implementing user separation using API keys (mock authentication) is the perfect way to learn authorization and secure database querying.
-
-I have updated your `mongoDB_python_api.py` file to include:
-
-1.  **MOCK USER DATA:** A dictionary that simulates a `users` collection lookup (containing two users, John Doe and ACME Corporation, and their unique keys).
-2.  **Authentication Dependency (`get_current_user_id`):** A function that reads the `X-API-Key` header and validates it against the mock data.
-3.  **Authorization Logic:** All key endpoints now require the `ownerId` to be included in **both** the insertion (write) and retrieval (read) queries, ensuring John Doe cannot touch ACME Corp's data.
-
-### **ACTION REQUIRED BEFORE RUNNING:**
-
-1.  **Replace `<db_password>`:** Ensure you have replaced `<db_password>` with your actual password in the `MONGO_URI`.
-
-Here is the updated file:
-
-http://googleusercontent.com/immersive_entry_chip/0
-
-### How to Test the Data Separation
-
-1.  **Start your server:** `uvicorn mongoDB_python_api:app --reload`
-
-2.  **Create a Payment for John Doe (Success):** Use John Doe's key. Note the `txn_ID` returned.
-
-    ```bash
-    curl -X POST "http://127.0.0.1:8000/api/v1/payments/charge" \
-    -H "Content-Type: application/json" \
-    -H "X-API-Key: PK_LIVE_JD_XYZ123" \
-    -d '{"customerName": "JD Primary", "paymentAmount": 10.00, "currency": "USD"}'
-    # RESPONSE: 201 Created, returns txn_JD_ID
-
-    ```
-
-3.  **Retrieve John Doe's Payment (Success):** Use John Doe's key and his `txn_JD_ID`.
-
-    ```bash
-    # Replace <txn_JD_ID> with the ID from step 2
-    curl -X GET "http://127.0.0.1:8000/api/v1/payments/<txn_JD_ID>" \
-    -H "X-API-Key: PK_LIVE_JD_XYZ123"
-    # RESPONSE: 200 OK, returns the payment details.
-
-    ```
-
-4.  **Try to Access John Doe's Payment with ACME Corp's Key (FAILURE - 404):**
-
-    ```bash
-    # Use ACME's key (PK_LIVE_AC_321ZYX) but John Doe's ID (<txn_JD_ID>)
-    curl -X GET "http://127.0.0.1:8000/api/v1/payments/<txn_JD_ID>" \
-    -H "X-API-Key: PK_LIVE_AC_321ZYX"
-    # RESPONSE: 404 Not Found. This proves the separation is working!
-
-    ```
-
-You've now successfully implemented mock authentication and enforced data ownership at the database query level\!
 
 

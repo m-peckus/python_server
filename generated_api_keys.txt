@@ -1,0 +1,19 @@
+# user API_KEYS
+apiKey="PK_LIVE_BFC0C7E3EBE44A70" user_name="Alice Example"
+
+# curl payload for user registration
+curl -X POST "http://127.0.0.1:8000/api/v1/users/register" \
+    -H "Content-Type: application/json" \
+    -d '{"name": "Acme Corporation", "email": "acme@office.com"}'
+
+# Acme Corporation registration data & API key
+-d '{"name": "Acme Corporation", "email": "acme@office.com"}'
+{"message":"User registered successfully.","userId":"user_60cc03bc9e04","apiKey":"PK_LIVE_60631D8C17AF403B","createdAt":"2025-10-20T17:54:08.000635Z"}
+
+# John Doe registration data & API key
+-d '{"name": "John Doe", "email": "john@post.com"}'
+{"message":"User registered successfully.","userId":"user_1456816e9fdb","apiKey":"PK_LIVE_BF74B1534D004F65","createdAt":"2025-10-20T17:57:21.851563Z"}
+
+# Project Falcon registration data & API key
+-d '{"name": "Project Falcon", "email": "falcon@mail.com"}'
+{"message":"User registered successfully.","userId":"user_335102bb6ab7","apiKey":"PK_LIVE_91A6B37A742A4142","createdAt":"2025-10-20T18:12:43.186174Z"}
