@@ -1,5 +1,9 @@
+# CHECK API STATUS
+
+curl -X GET "http://127.0.0.1:8000/api/v1/status"
+
 __________________________________________________________
-Create payment transaction -- ADD USER NAME & API KEY
+# Create payment transaction- add user name & API key
 ___________________________________________________________
 
 curl -X POST "http://127.0.0.1:8000/api/v1/payments/charge" \
@@ -13,18 +17,31 @@ curl -X POST "http://127.0.0.1:8000/api/v1/payments/charge" \
   "webhookUrl": "https://webhook-test.com/aa8bf046900ab914b82788e3d4df32ca"
 }'
 
-###########################################################################################
+________________________________________________________________
+# CREATE PAYMENT FOR John Doe WITH API KEY & SEND A WEBHOOK
+________________________________________________________________
+
+curl -X POST "http://127.0.0.1:8000/api/v1/payments/charge" \
+-H "Content-Type: application/json" \
+-H "X-API-Key: ###PROVIDE_API_KEY###" \
+-d '{
+  "customerName": "John Doe",
+  "paymentAmount": 100.50,
+  "currency": "EUR",
+  "details": "Authorized payment test for John Doe",
+  "webhookUrl": "https://webhook-test.com/aa8bf046900ab914b82788e3d4df32ca"
+}'
+
+
 _________________________________________________________________________
-Get user's transaction data with transaction ID
-IMPORTANT: REPLACE <ACME_TRANSACTION_ID> with the actual ID you copied from the first step.
+Get user's transaction data with transaction ID & API KEY
+IMPORTANT: REPLACE <TRANSACTION_ID> with the actual ID of a transaction
 ____________________________________________________________________________________
 
 curl -X GET "http://127.0.0.1:8000/api/v1/payments/<TRANSACTION_ID>" \
 -H "X-API-Key: #API_KEY_MISSING"
 
-###########################################################################################
 
-###################################################################################################
 ______________________________________________________________________________________
 Get all user's payments. User fileterd by API key
 _________________________________________________________________________
@@ -32,28 +49,29 @@ _________________________________________________________________________
 curl -X GET "http://127.0.0.1:8000/api/v1/payments/all" \
     -H "X-API-Key: #ADD_API_KEY#"
 
-
-######################################################################################################
+_____________________________________________________________________________
 Filter and optionally sort transactions
+_____________________________________________________________________________
 
 Filter by amount ≥ 500:
 
 curl -X GET "http://127.0.0.1:8000/api/v1/payments/query?minAmount=500" \
-     -H "X-API-Key: PK_LIVE_AC_321ZYX"
+     -H "X-API-Key: #ADD_API_KEY"
 
 Filter by amount 100–1000, sort by amount ascending:
 
 curl -X GET "http://127.0.0.1:8000/api/v1/payments/query?minAmount=100&maxAmount=1000&sortBy=amount&sortOrder=asc" \
-     -H "X-API-Key: PK_LIVE_AC_321ZYX"
+     -H "X-API-Key: #ADD_API_KEY"
 
 Sort by date descending (newest first - This is the default behavior)
 
 curl -X GET "http://127.0.0.1:8000/api/v1/payments/query?sortBy=createdAt&sortOrder=desc" \
+     -H "X-API-Key: #ADD_API_KEY"
 
 Sort by date ascending (oldest first)
 
 curl -X GET "http://127.0.0.1:8000/api/v1/payments/query?sortBy=createdAt&sortOrder=asc" \
-     -H "X-API-Key: PK_LIVE_AC_321ZYX"
+     -H "X-API-Key: #ADD_API_KEY#"
 
 
 

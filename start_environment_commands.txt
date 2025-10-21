@@ -1,0 +1,13 @@
+# start uvicorn with current project version
+
+uvicorn dynamic_api_keys_main:app --reload
+
+
+# start virtual environement
+
+source venv/bin/activate
+
+# create virtual environement
+
+python3 -m venv venv
+
