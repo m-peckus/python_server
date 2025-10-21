@@ -1,10 +1,12 @@
-Create payment transaction
+__________________________________________________________
+Create payment transaction -- ADD USER NAME & API KEY
+___________________________________________________________
 
 curl -X POST "http://127.0.0.1:8000/api/v1/payments/charge" \
 -H "Content-Type: application/json" \
--H "X-API-Key: PK_LIVE_AC_321ZYX" \
+-H "X-API-Key:#ADD_API_KEY#" \
 -d '{
-  "customerName": "ACME Project Falcon",
+  "customerName": "#ADD_customerName#",
   "paymentAmount": 5500.99,
   "currency": "USD",
   "details": "Large corporate payment test for ACME Corp",
@@ -12,34 +14,23 @@ curl -X POST "http://127.0.0.1:8000/api/v1/payments/charge" \
 }'
 
 ###########################################################################################
+_________________________________________________________________________
+Get user's transaction data with transaction ID
+IMPORTANT: REPLACE <ACME_TRANSACTION_ID> with the actual ID you copied from the first step.
+____________________________________________________________________________________
 
-Get user's transaction data
-
-# IMPORTANT: REPLACE <ACME_TRANSACTION_ID> with the actual ID you copied from the first step.
-curl -X GET "http://127.0.0.1:8000/api/v1/payments/<ACME_TRANSACTION_ID>" \
--H "X-API-Key: PK_LIVE_AC_321ZYX"
+curl -X GET "http://127.0.0.1:8000/api/v1/payments/<TRANSACTION_ID>" \
+-H "X-API-Key: #API_KEY_MISSING"
 
 ###########################################################################################
 
-Create payment transaction
-
-
-curl -X POST "http://127.0.0.1:8000/api/v1/payments/charge" \
--H "Content-Type: application/json" \
--H "X-API-Key: PK_LIVE_JD_XYZ123" \
--d '{
-  "customerName": "JD Primary Account",
-  "paymentAmount": 100.50,
-  "currency": "EUR",
-  "details": "First authorized payment test for John Doe"
-}'
-
 ###################################################################################################
-
+______________________________________________________________________________________
 Get all user's payments. User fileterd by API key
+_________________________________________________________________________
 
 curl -X GET "http://127.0.0.1:8000/api/v1/payments/all" \
-    -H "X-API-Key: PK_LIVE_AC_321ZYX"
+    -H "X-API-Key: #ADD_API_KEY#"
 
 
 ######################################################################################################

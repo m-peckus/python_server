@@ -1,6 +1,6 @@
 # start uvicorn with current project version
 
-uvicorn new_api_file:app --reload
+uvicorn dynamic_api_keys_main:app --reload
 
 
 # start virtual environement
@@ -11,37 +11,37 @@ source venv/bin/activate
 
 python3 -m venv venv
 
-# check API status
+# CHECK API STATUS
 
 curl -X GET "http://127.0.0.1:8000/api/v1/status"
 
 
-# create payment John Doe with API KEY & send a webhook
+# CREATE PAYMENT FOR John Doe WITH API KEY & SEND A WEBHOOK
 
 curl -X POST "http://127.0.0.1:8000/api/v1/payments/charge" \
 -H "Content-Type: application/json" \
--H "X-API-Key: PK_LIVE_JD_XYZ123" \
+-H "X-API-Key: ###PROVIDE_API_KEY###" \
 -d '{
-  "customerName": "JD Primary Account",
+  "customerName": "John Doe",
   "paymentAmount": 100.50,
   "currency": "EUR",
-  "details": "First authorized payment test for John Doe",
+  "details": "Authorized payment test for John Doe",
   "webhookUrl": "https://webhook-test.com/aa8bf046900ab914b82788e3d4df32ca"
 }'
 
-# Payload to Retrieve the Payment Data (GET) for JOHN DOE (API_KEY_CORELATION)
+# RETRIEVE THE PAYMENT DATA (GET) FOR John Doe (API_KEY_CORELATION)
 # IMPORTANT: REPLACE <TRANSACTION_ID> with the actual ID you copied from the POST response body
 
 curl -X GET "http://127.0.0.1:8000/api/v1/payments/REPLACE_THIS_TRANSACTION_ID>" \
--H "X-API-Key: PK_LIVE_JD_XYZ123"
+-H "X-API-Key: ###PROVIDE_API_KEY###"
 
-# create payment for ACME Corporation with API KEY & send a webhook
+# CREATE PAYMENT FOR ACME Corporation WITH API KEY & SEND A WEBHOOK
 
 curl -X POST "http://127.0.0.1:8000/api/v1/payments/charge" \
 -H "Content-Type: application/json" \
--H "X-API-Key: PK_LIVE_AC_321ZYX" \
+-H "X-API-Key: ###PROVIDE_API_KEY###" \
 -d '{
-  "customerName": "ACME Project Falcon",
+  "customerName": "ACME Corporation",
   "paymentAmount": 5500.99,
   "currency": "USD",
   "details": "Large corporate payment test for ACME Corp",
