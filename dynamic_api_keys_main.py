@@ -10,6 +10,7 @@ import httpx
 import uuid 
 from pydantic import BaseModel, Field, validator
 from typing import Optional
+import asyncio
 
 # ============================================================
 # 1️⃣  MONGODB CONFIGURATION & INITIALIZATION
@@ -215,6 +216,36 @@ async def dispatch_webhook(url: str, payload: dict):
         print(f"[WEBHOOK ERROR] Failed to send webhook: {exc}")
 
 # ============================================================
+# Utility: Complete payment after delay
+# ============================================================
+
+async def complete_payment_after_delay(transaction_id: str, collection: Collection, webhook_url: str):
+    """Wait 5 seconds, mark payment as completed, and send webhook."""
+    await asyncio.sleep(5)  # simulate processing delay
+
+    updated = collection.find_one_and_update(
+        {"id": transaction_id},
+        {"$set": {"status": "completed"}},
+        return_document=True
+    )
+
+    if updated and webhook_url:
+        payload = {
+            "event": "payment.completed",
+            "id": updated["id"],
+            "timestamp": datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
+            "data": {
+                "customerName": updated["customerName"],
+                "amount": updated["amount"],
+                "currency": updated["currency"],
+                "status": updated["status"]
+            }
+        }
+        await dispatch_webhook(webhook_url, payload)
+        print(f"[BACKGROUND] Transaction {transaction_id} marked as completed and webhook sent.")
+
+
+# ============================================================
 # 6️⃣  API ENDPOINTS
 # ============================================================
 
@@ -262,7 +293,6 @@ async def process_new_payment(
     collection: Collection = Depends(get_mongo_collection),
     owner_id: str = Depends(get_current_user_id)
 ):
-    """Process a new payment and record it in MongoDB."""
     transaction_id = f"txn_{uuid.uuid4().hex[:12]}"
     created_at = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
 
@@ -273,12 +303,11 @@ async def process_new_payment(
         "amount": charge.paymentAmount,
         "currency": charge.currency,
         "details": charge.details or 'No details provided',
-        "status": 'succeeded',
+        "status": 'pending',
         "webhookUrl": charge.webhookUrl,
         "createdAt": created_at
     }
 
-    # Persist to MongoDB
     try:
         collection.insert_one(new_transaction)
     except Exception as e:
@@ -290,19 +319,14 @@ async def process_new_payment(
 
     print(f"[CHARGE] New transaction created: {transaction_id} (Owner: {owner_id})")
 
-    # Optional webhook dispatch
+    # Schedule background task for automatic status update + webhook
     if new_transaction["webhookUrl"]:
-        webhook_payload = {
-            "event": "payment.succeeded",
-            "id": new_transaction["id"],
-            "timestamp": new_transaction["createdAt"],
-            "data": {
-                "customerName": new_transaction["customerName"],
-                "amount": new_transaction["amount"],
-                "currency": new_transaction["currency"]
-            }
-        }
-        background_tasks.add_task(dispatch_webhook, new_transaction["webhookUrl"], webhook_payload)
+        background_tasks.add_task(
+            complete_payment_after_delay,
+            transaction_id,
+            collection,
+            new_transaction["webhookUrl"]
+        )
 
     return {
         "id": new_transaction["id"],
@@ -312,6 +336,7 @@ async def process_new_payment(
         "status": new_transaction["status"],
         "created": new_transaction["createdAt"]
     }
+
 
 
 # ------------------------------------------------------------
