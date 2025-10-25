@@ -106,7 +106,7 @@ STATUS_WEBHOOK_URL = "https://webhook-test.com/aa8bf046900ab914b82788e3d4df32ca"
 
 
 # ============================================================
-# 2️⃣.5️⃣  USER REGISTRATION (Dynamic API Key Generation)
+# 2️⃣.5️⃣  USER REGISTRATION (Dynamic API Key + Webhook Secret)
 # ============================================================
 
 USERS_COLLECTION_NAME = "users"
@@ -132,14 +132,19 @@ def generate_api_key() -> str:
     """Generate a random API key for a new user."""
     return f"PK_LIVE_{uuid.uuid4().hex[:16].upper()}"
 
+def generate_webhook_secret() -> str:
+    """Generate a secure random secret for webhook signing."""
+    return f"SK_{uuid.uuid4().hex[:32].upper()}"
+
 @app.post("/api/v1/users/register", status_code=status.HTTP_201_CREATED)
 async def register_user(
     user: UserRegistration,
     users_collection: Collection = Depends(get_users_collection)
 ):
     """
-    Register a new user and automatically assign an API key.
-    Returns the generated API key upon successful registration.
+    Register a new user and automatically assign:
+    - API key (for authentication)
+    - Webhook secret (for secure webhook signing)
     """
     # Check if user already exists by email
     existing_user = users_collection.find_one({"email": user.email})
@@ -149,9 +154,10 @@ async def register_user(
             detail="User with this email already exists."
         )
 
-    # Generate userId and API key
+    # Generate userId, API key, and webhook secret
     user_id = f"user_{uuid.uuid4().hex[:12]}"
     api_key = generate_api_key()
+    webhook_secret = generate_webhook_secret()
     created_at = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
 
     user_doc = {
@@ -159,6 +165,7 @@ async def register_user(
         "name": user.name,
         "email": user.email,
         "apiKey": api_key,
+        "webhookSecret": webhook_secret,
         "createdAt": created_at
     }
 
@@ -177,6 +184,7 @@ async def register_user(
         "message": "User registered successfully.",
         "userId": user_id,
         "apiKey": api_key,
+        "webhookSecret": webhook_secret,
         "createdAt": created_at
     }
 

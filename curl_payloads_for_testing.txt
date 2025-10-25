@@ -1,6 +1,21 @@
+
 # CHECK API STATUS
 
 curl -X GET "http://127.0.0.1:8000/api/v1/status"
+
+
+_________________________________________________________________________
+# Register a new user (registered user receives API key and HMAC secret)
+________________________________________________________________________
+
+curl -X POST "http://127.0.0.1:8000/api/v1/users/register" \
+-H "Content-Type: application/json" \
+-d '{
+  "name": "User Name",
+  "email": "user@email.com"
+}'
+
+
 
 __________________________________________________________
 # Create payment transaction- add user name & API key
