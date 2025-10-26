@@ -20,3 +20,6 @@ project_commands.txt
 
 # Store generated api_keys & user_names
 generated_api_keys.txt
+
+# run python to generate curl commands
+generate_curl.py
