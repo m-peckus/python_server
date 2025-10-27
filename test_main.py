@@ -12,6 +12,11 @@ from pydantic import BaseModel, Field, validator
 from typing import Optional
 import asyncio
 
+import hmac
+import hashlib
+import json
+
+
 # ============================================================
 # 1️⃣  MONGODB CONFIGURATION & INITIALIZATION
 # ============================================================
@@ -63,38 +68,28 @@ def get_mongo_collection() -> Collection:
 # 2️⃣  AUTHENTICATION & USER VALIDATION
 # ============================================================
 
-# --- Mock API Key Store ---
-# Simulates user records with unique API keys and owner IDs.
-#MOCK_API_KEYS = {
-#   "PK_LIVE_JD_XYZ123": "user_john_doe_123",    # John Doe's Key
-#   "PK_LIVE_AC_321ZYX": "user_acme_corp_456"    # ACME Corporation's Key
-#}
 
 def get_current_user_id(x_api_key: str = Header(..., alias="X-API-Key")) -> str:
     """
-    Validates the API Key provided in the X-API-Key header.
-    First checks MongoDB (dynamic users), then falls back to mock keys.
+    Validates the API Key provided in the X-API-Key header using MongoDB.
     Returns the corresponding user's userId.
     """
-    # 1️⃣ Check if database is initialized
-    if 'mongo_db' in globals():
-        users_collection = mongo_db["users"]
-        user_doc = users_collection.find_one({"apiKey": x_api_key})
-        if user_doc:
-            return user_doc["userId"]
+    if 'mongo_db' not in globals():
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database not initialized."
+        )
 
-    # 2️⃣ Fallback for hardcoded mock users
-    user_id = MOCK_API_KEYS.get(x_api_key)
-    if user_id:
-        return user_id
+    users_collection = mongo_db["users"]
+    user_doc = users_collection.find_one({"apiKey": x_api_key})
+    if not user_doc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing X-API-Key. Access denied."
+        )
 
-    # 3️⃣ If no match found, reject request
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid or missing X-API-Key. Access denied."
-    )
+    return user_doc["userId"]
 
-    return user_id
 
 # ============================================================
 # 3️⃣  APPLICATION SETUP
@@ -106,7 +101,7 @@ STATUS_WEBHOOK_URL = "https://webhook-test.com/aa8bf046900ab914b82788e3d4df32ca"
 
 
 # ============================================================
-# 2️⃣.5️⃣  USER REGISTRATION (Dynamic API Key Generation)
+# 2️⃣.5️⃣  USER REGISTRATION (Dynamic API Key + Webhook Secret)
 # ============================================================
 
 USERS_COLLECTION_NAME = "users"
@@ -132,14 +127,19 @@ def generate_api_key() -> str:
     """Generate a random API key for a new user."""
     return f"PK_LIVE_{uuid.uuid4().hex[:16].upper()}"
 
+def generate_webhook_secret() -> str:
+    """Generate a secure random secret for webhook signing."""
+    return f"SK_{uuid.uuid4().hex[:32].upper()}"
+
 @app.post("/api/v1/users/register", status_code=status.HTTP_201_CREATED)
 async def register_user(
     user: UserRegistration,
     users_collection: Collection = Depends(get_users_collection)
 ):
     """
-    Register a new user and automatically assign an API key.
-    Returns the generated API key upon successful registration.
+    Register a new user and automatically assign:
+    - API key (for authentication)
+    - Webhook secret (for secure webhook signing)
     """
     # Check if user already exists by email
     existing_user = users_collection.find_one({"email": user.email})
@@ -149,9 +149,10 @@ async def register_user(
             detail="User with this email already exists."
         )
 
-    # Generate userId and API key
+    # Generate userId, API key, and webhook secret
     user_id = f"user_{uuid.uuid4().hex[:12]}"
     api_key = generate_api_key()
+    webhook_secret = generate_webhook_secret()
     created_at = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
 
     user_doc = {
@@ -159,6 +160,7 @@ async def register_user(
         "name": user.name,
         "email": user.email,
         "apiKey": api_key,
+        "webhookSecret": webhook_secret,
         "createdAt": created_at
     }
 
@@ -177,6 +179,7 @@ async def register_user(
         "message": "User registered successfully.",
         "userId": user_id,
         "apiKey": api_key,
+        "webhookSecret": webhook_secret,
         "createdAt": created_at
     }
 
@@ -206,6 +209,30 @@ class PaymentCharge(BaseModel):
 # 5️⃣  UTILITY FUNCTIONS
 # ============================================================
 
+def sign_payload(payload: dict, secret: str) -> str:
+    """
+    Generate a HMAC SHA256 signature for a webhook payload.
+    """
+    payload_bytes = json.dumps(payload, separators=(',', ':')).encode('utf-8')
+    signature = hmac.new(secret.encode('utf-8'), payload_bytes, hashlib.sha256).hexdigest()
+    return signature
+
+async def dispatch_secure_webhook(url: str, payload: dict, secret: str):
+    """
+    Send webhook with HMAC signature in header.
+    """
+    signature = sign_payload(payload, secret)
+    headers = {"X-Signature": signature}
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, json=payload, headers=headers, timeout=5.0)
+            print(f"[WEBHOOK] Sent to {url}. Status: {response.status_code}, Signature: {signature}")
+    except httpx.RequestError as exc:
+        print(f"[WEBHOOK ERROR] Failed to send webhook: {exc}")
+
+
+
 async def dispatch_webhook(url: str, payload: dict):
     """Send a non-blocking webhook notification to a given URL."""
     try:
@@ -215,9 +242,13 @@ async def dispatch_webhook(url: str, payload: dict):
     except httpx.RequestError as exc:
         print(f"[WEBHOOK ERROR] Failed to send webhook: {exc}")
 
+
+
 # ============================================================
 # Utility: Complete payment after delay
 # ============================================================
+
+
 
 async def complete_payment_after_delay(transaction_id: str, collection: Collection, webhook_url: str):
     """Wait 5 seconds, mark payment as completed, and send webhook."""
@@ -241,8 +272,19 @@ async def complete_payment_after_delay(transaction_id: str, collection: Collecti
                 "status": updated["status"]
             }
         }
-        await dispatch_webhook(webhook_url, payload)
-        print(f"[BACKGROUND] Transaction {transaction_id} marked as completed and webhook sent.")
+
+        # Fetch the user's webhookSecret from MongoDB
+        user_doc = collection.database["users"].find_one({"userId": updated["ownerId"]})
+        if user_doc and "webhookSecret" in user_doc:
+            secret = user_doc["webhookSecret"]
+        else:
+            secret = "default_secret"  # fallback (optional)
+
+        # Send signed webhook
+        await dispatch_secure_webhook(webhook_url, payload, secret)
+        print(f"[BACKGROUND] Transaction {transaction_id} marked as completed and webhook sent securely.")
+
+
 
 
 # ============================================================
@@ -477,5 +519,59 @@ async def get_payment_by_id(
 
     return transaction
 
+# ============================================================
+# 🔒 SECURE WEBHOOK RECEIVER ENDPOINT
+# ============================================================
+
+from fastapi import Header, HTTPException, status
+
+def verify_webhook_signature(payload: dict, signature: str, secret: str):
+    """
+    Verifies that the incoming webhook signature matches the payload.
+    Raises HTTPException if verification fails.
+    """
+    import hmac
+    import hashlib
+    import json
+
+    payload_bytes = json.dumps(payload, separators=(',', ':')).encode('utf-8')
+    expected_signature = hmac.new(secret.encode('utf-8'), payload_bytes, hashlib.sha256).hexdigest()
+
+    if not hmac.compare_digest(signature, expected_signature):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid webhook signature"
+        )
+
+@app.post("/api/v1/webhook-receive")
+async def receive_webhook(payload: dict, x_signature: str = Header(...), x_api_key: str = Header(...)):
+    """
+    Receives webhooks and validates signature using the user's webhook secret.
+    - payload: JSON body sent from your payment service.
+    - x_signature: HMAC signature sent in header.
+    - x_api_key: User's API key to identify which secret to use.
+    """
+    # 1️⃣ Retrieve the user's webhook secret from MongoDB
+    users_collection = mongo_db["users"]
+    user_doc = users_collection.find_one({"apiKey": x_api_key})
+    if not user_doc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid X-API-Key"
+        )
+
+    secret = user_doc.get("webhookSecret")
+    if not secret:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Webhook secret not set for this user"
+        )
+
+    # 2️⃣ Verify the signature
+    verify_webhook_signature(payload, x_signature, secret)
+
+    # 3️⃣ Process payload safely
+    print(f"[WEBHOOK RECEIVED] Verified payload for user {user_doc['userId']}: {payload}")
+    return {"status": "verified"}
 
 
