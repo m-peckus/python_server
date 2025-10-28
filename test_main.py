@@ -99,7 +99,6 @@ app = FastAPI()
 app_start_time = time.monotonic()
 STATUS_WEBHOOK_URL = "https://webhook-test.com/aa8bf046900ab914b82788e3d4df32ca"
 
-
 # ============================================================
 # 2️⃣.5️⃣  USER REGISTRATION (Dynamic API Key + Webhook Secret)
 # ============================================================
@@ -118,11 +117,19 @@ def get_users_collection() -> Collection:
             detail=f"Database not initialized: {e}"
         )
 
+# -------------------------------
+# Pydantic model
+# -------------------------------
 class UserRegistration(BaseModel):
     """Schema for user registration input."""
     name: str = Field(..., min_length=2, description="Full name of the user or organization.")
     email: str = Field(..., pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$', description="Valid email address.")
+    role: str = Field(default="merchant", description="Role of the user in the system.")  # 👈 NEW FIELD
 
+
+# -------------------------------
+# Helper functions
+# -------------------------------
 def generate_api_key() -> str:
     """Generate a random API key for a new user."""
     return f"PK_LIVE_{uuid.uuid4().hex[:16].upper()}"
@@ -131,6 +138,10 @@ def generate_webhook_secret() -> str:
     """Generate a secure random secret for webhook signing."""
     return f"SK_{uuid.uuid4().hex[:32].upper()}"
 
+
+# -------------------------------
+# Endpoint: User Registration
+# -------------------------------
 @app.post("/api/v1/users/register", status_code=status.HTTP_201_CREATED)
 async def register_user(
     user: UserRegistration,
@@ -140,6 +151,7 @@ async def register_user(
     Register a new user and automatically assign:
     - API key (for authentication)
     - Webhook secret (for secure webhook signing)
+    - Default role ("merchant")
     """
     # Check if user already exists by email
     existing_user = users_collection.find_one({"email": user.email})
@@ -161,6 +173,7 @@ async def register_user(
         "email": user.email,
         "apiKey": api_key,
         "webhookSecret": webhook_secret,
+        "role": user.role,  # 👈 ADDED FIELD HERE
         "createdAt": created_at
     }
 
@@ -180,8 +193,12 @@ async def register_user(
         "userId": user_id,
         "apiKey": api_key,
         "webhookSecret": webhook_secret,
+        "role": user.role,  # 👈 Include in response
         "createdAt": created_at
     }
+
+
+
 
 
 

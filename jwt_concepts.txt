@@ -1,0 +1,37 @@
+5. Integrate JWT with FastAPI
+
+Conceptually:
+
+    You’ll add a /login endpoint that issues tokens.
+
+    You’ll create a dependency function that checks for valid JWTs.
+
+    Protected routes (like /api/v1/payments/charge) will depend on that validator.
+
+When a request comes in:
+
+    The dependency extracts the JWT from the Authorization header.
+
+    It decodes and verifies the token.
+
+    If valid → it attaches the user info (from token) to the request context.
+
+    If invalid or expired → it raises an HTTP 401 Unauthorized.
+    
+#########################################################################################
+
+Where this logic lives
+
+You’ll typically organize it this way:
+
+app/
+ ├─ main.py                # FastAPI app entry point
+ ├─ routes/
+ │   ├─ auth_routes.py     # <-- /login endpoint goes here
+ │   ├─ payment_routes.py
+ │   └─ webhook_routes.py
+ ├─ utils/
+ │   ├─ jwt_handler.py     # <-- functions to create/verify JWTs
+ │   └─ security.py
+ └─ models/
+     └─ user_model.py
