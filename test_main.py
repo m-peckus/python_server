@@ -128,7 +128,8 @@ class UserRegistration(BaseModel):
     """Schema for user registration input."""
     name: str = Field(..., min_length=2, description="Full name of the user or organization.")
     email: str = Field(..., pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$', description="Valid email address.")
-    password: str = Field(..., min_length=8, description="User password (min 8 characters).")
+    password: str = Field(..., min_length=8, max_length=64, description="User password (8-64 chars).")
+
 
 def hash_password(password: str) -> str:
     """Hash a plain text password using bcrypt."""
@@ -191,6 +192,75 @@ async def register_user(
         "role": "admin",
         "createdAt": created_at
     }
+
+
+
+# ============================================================
+# 3️⃣ USER LOGIN (JWT Token Issuance)
+# ============================================================
+
+from jose import JWTError, jwt
+from datetime import datetime, timedelta
+
+# Load JWT config from .env
+JWT_SECRET = os.getenv("JWT_SECRET", "supersecretjwtkey")
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+
+class UserLogin(BaseModel):
+    """Schema for user login input."""
+    email: str = Field(..., pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$')
+    password: str = Field(..., min_length=6)
+
+def create_access_token(data: dict, expires_delta: timedelta = timedelta(hours=2)):
+    """
+    Create a signed JWT access token with expiration.
+    """
+    to_encode = data.copy()
+    expire = datetime.utcnow() + expires_delta
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    return encoded_jwt
+
+@app.post("/api/v1/users/login")
+async def login_user(
+    login_data: UserLogin,
+    users_collection: Collection = Depends(get_users_collection)
+):
+    """
+    Authenticate a user and issue a JWT access token.
+    """
+    # 1️⃣ Find user by email
+    user_doc = users_collection.find_one({"email": login_data.email})
+    if not user_doc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password."
+        )
+
+    # 2️⃣ Verify password
+    if not pwd_context.verify(login_data.password, user_doc["password"]):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password."
+        )
+
+    # 3️⃣ Create JWT token
+    token_data = {
+        "sub": user_doc["userId"],
+        "role": user_doc["role"],
+        "email": user_doc["email"]
+    }
+
+    access_token = create_access_token(token_data)
+
+    # 4️⃣ Return token
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "userId": user_doc["userId"],
+        "role": user_doc["role"]
+    }
+
 
 
 
