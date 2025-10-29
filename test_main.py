@@ -15,6 +15,9 @@ import asyncio
 import hmac
 import hashlib
 import json
+from passlib.context import CryptContext
+
+
 
 
 # ============================================================
@@ -27,6 +30,10 @@ from pymongo import MongoClient
 from pymongo.collection import Collection
 from pymongo.errors import ConnectionFailure
 from bson.objectid import ObjectId
+
+# Initialize bcrypt context
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 # --- Load Environment Variables ---
 # Loads variables from the '.env' file for secure configuration.
@@ -100,7 +107,7 @@ app_start_time = time.monotonic()
 STATUS_WEBHOOK_URL = "https://webhook-test.com/aa8bf046900ab914b82788e3d4df32ca"
 
 # ============================================================
-# 2️⃣.5️⃣  USER REGISTRATION (Dynamic API Key + Webhook Secret)
+# 2️⃣.5️⃣  USER REGISTRATION (Dynamic API Key + Webhook Secret + Password)
 # ============================================================
 
 USERS_COLLECTION_NAME = "users"
@@ -117,19 +124,16 @@ def get_users_collection() -> Collection:
             detail=f"Database not initialized: {e}"
         )
 
-# -------------------------------
-# Pydantic model
-# -------------------------------
 class UserRegistration(BaseModel):
     """Schema for user registration input."""
     name: str = Field(..., min_length=2, description="Full name of the user or organization.")
     email: str = Field(..., pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$', description="Valid email address.")
-    role: str = Field(default="merchant", description="Role of the user in the system.")  # 👈 NEW FIELD
+    password: str = Field(..., min_length=8, description="User password (min 8 characters).")
 
+def hash_password(password: str) -> str:
+    """Hash a plain text password using bcrypt."""
+    return pwd_context.hash(password)
 
-# -------------------------------
-# Helper functions
-# -------------------------------
 def generate_api_key() -> str:
     """Generate a random API key for a new user."""
     return f"PK_LIVE_{uuid.uuid4().hex[:16].upper()}"
@@ -138,22 +142,12 @@ def generate_webhook_secret() -> str:
     """Generate a secure random secret for webhook signing."""
     return f"SK_{uuid.uuid4().hex[:32].upper()}"
 
-
-# -------------------------------
-# Endpoint: User Registration
-# -------------------------------
 @app.post("/api/v1/users/register", status_code=status.HTTP_201_CREATED)
 async def register_user(
     user: UserRegistration,
     users_collection: Collection = Depends(get_users_collection)
 ):
-    """
-    Register a new user and automatically assign:
-    - API key (for authentication)
-    - Webhook secret (for secure webhook signing)
-    - Default role ("merchant")
-    """
-    # Check if user already exists by email
+    """Register a new user with secure password hashing."""
     existing_user = users_collection.find_one({"email": user.email})
     if existing_user:
         raise HTTPException(
@@ -161,19 +155,20 @@ async def register_user(
             detail="User with this email already exists."
         )
 
-    # Generate userId, API key, and webhook secret
     user_id = f"user_{uuid.uuid4().hex[:12]}"
     api_key = generate_api_key()
     webhook_secret = generate_webhook_secret()
+    hashed_password = hash_password(user.password)
     created_at = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
 
     user_doc = {
         "userId": user_id,
         "name": user.name,
         "email": user.email,
+        "password": hashed_password,
         "apiKey": api_key,
         "webhookSecret": webhook_secret,
-        "role": user.role,  # 👈 ADDED FIELD HERE
+        "role": "admin",
         "createdAt": created_at
     }
 
@@ -193,13 +188,9 @@ async def register_user(
         "userId": user_id,
         "apiKey": api_key,
         "webhookSecret": webhook_secret,
-        "role": user.role,  # 👈 Include in response
+        "role": "admin",
         "createdAt": created_at
     }
-
-
-
-
 
 
 

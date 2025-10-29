@@ -18,8 +18,8 @@ mongoDBpasswords
 # Project curl commands
 project_commands.txt
 
-# Store generated api_keys & user_names
-generated_api_keys.txt
+# Store active users data
+active_users_data.txt
 
 # run python to generate curl commands
 generate_curl.py
