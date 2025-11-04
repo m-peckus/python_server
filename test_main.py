@@ -17,6 +17,11 @@ import hashlib
 import json
 from passlib.context import CryptContext
 
+from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, status
+from jose import JWTError, jwt
+import os 
+from dotenv import load_dotenv
 
 
 
@@ -24,8 +29,6 @@ from passlib.context import CryptContext
 # 1️⃣  MONGODB CONFIGURATION & INITIALIZATION
 # ============================================================
 
-import os 
-from dotenv import load_dotenv
 from pymongo import MongoClient
 from pymongo.collection import Collection
 from pymongo.errors import ConnectionFailure
@@ -70,6 +73,70 @@ def get_mongo_collection() -> Collection:
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=f"Database not initialized: {e}"
         )
+
+# --- Load Environment Variables ---
+# Loads variables from the '.env' file for JWT authentication.
+
+# Import your existing JWT secret and algorithm
+SECRET_KEY = os.getenv("JWT_SECRET") 
+ALGORITHM = os.getenv("JWT_ALGORITHM") 
+
+
+#==============================================================
+# Create system admin for user roles modification purpose
+#==============================================================
+
+def create_default_admin(users_collection):
+    """Create a default admin user if none exists."""
+    existing_admin = users_collection.find_one({"role": "default admin"})
+    if existing_admin:
+        print("[INIT] Default admin user already exists.")
+        return
+
+    default_admin = {
+        "userId": f"user_{uuid.uuid4().hex[:12]}",
+        "name": "System Administrator",
+        "email": "admin@system.local",
+        "password": pwd_context.hash("Admin@123!"),
+        "apiKey": generate_api_key(),
+        "webhookSecret": generate_webhook_secret(),
+        "role": "system admin",
+        "createdAt": datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+    }
+
+    users_collection.insert_one(default_admin)
+    print("[INIT] Default admin created: admin@system.local / Admin@123!")
+
+
+
+
+
+#=============================================================
+# Extracts and decodes the JWT token, verify the user’s role is in the required_roles list,
+# Deny access if not
+#=============================================================
+
+
+def require_role(required_roles: list):
+    """Dependency to enforce role-based access."""
+    def role_checker(token: str = Depends(oauth2_scheme)):
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            user_role = payload.get("role")
+            if user_role not in required_roles:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"Access denied. Required role(s): {required_roles}"
+                )
+            return payload
+        except JWTError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or expired token."
+            )
+    return role_checker
+
+
 
 # ============================================================
 # 2️⃣  AUTHENTICATION & USER VALIDATION
@@ -169,7 +236,7 @@ async def register_user(
         "password": hashed_password,
         "apiKey": api_key,
         "webhookSecret": webhook_secret,
-        "role": "admin",
+        "role": "user",
         "createdAt": created_at
     }
 
@@ -189,7 +256,7 @@ async def register_user(
         "userId": user_id,
         "apiKey": api_key,
         "webhookSecret": webhook_secret,
-        "role": "admin",
+        "role": "user",
         "createdAt": created_at
     }
 
@@ -210,6 +277,11 @@ class UserLogin(BaseModel):
     """Schema for user login input."""
     email: str = Field(..., pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$')
     password: str = Field(..., min_length=6)
+
+class UpdateUserRole(BaseModel):
+    """Schema for role update request."""
+    role: str = Field(..., pattern="^(admin|merchant|user)$", description="New user role (admin, merchant, or user).")
+
 
 def create_access_token(data: dict, expires_delta: timedelta = timedelta(hours=2)):
     """
@@ -261,6 +333,49 @@ async def login_user(
         "role": user_doc["role"]
     }
 
+
+#=========================================================================
+# JWT token verification dependency
+#=========================================================================
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/login")
+
+def verify_jwt_token(token: str = Depends(oauth2_scheme)):
+    """Decode and verify the JWT token."""
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user_id: str = payload.get("sub")
+        role: str = payload.get("role")
+
+        if user_id is None or role is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token payload.",
+            )
+
+        return {"userId": user_id, "role": role}
+
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token.",
+        )
+
+#================================================================
+# Role based access helper
+#================================================================
+
+def require_role(required_role: str):
+    """Return dependency enforcing required user role."""
+    def role_checker(current_user=Depends(verify_jwt_token)):
+        if current_user["role"] != required_role:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access denied. {required_role} role required.",
+            )
+        return current_user
+    return role_checker
 
 
 
@@ -597,6 +712,70 @@ async def get_payment_by_id(
 
     return transaction
 
+#================================================================
+# JWT protected routes
+#================================================================
+
+
+@app.get("/api/v1/protected")
+async def protected_route(current_user=Depends(verify_jwt_token)):
+    """Accessible by any logged-in user (merchant/admin)."""
+    return {
+        "message": "Access granted — authenticated user.",
+        "userId": current_user["userId"],
+        "role": current_user["role"]
+    }
+
+@app.get("/api/v1/admin/dashboard")
+async def admin_dashboard(current_user=Depends(require_role("admin"))):
+    """Accessible only by admin users."""
+    return {
+        "message": "Welcome to the admin dashboard.",
+        "userId": current_user["userId"],
+        "role": current_user["role"]
+    }
+
+
+@app.patch("/api/v1/users/{user_id}/role", status_code=status.HTTP_200_OK)
+async def update_user_role(
+    user_id: str,
+    role_data: UpdateUserRole,
+    users_collection: Collection = Depends(get_users_collection),
+    current_user=Depends(require_role("admin"))
+):
+    """
+    PATCH endpoint — allows an admin to update another user's role.
+    Updates ONLY the 'role' field in MongoDB, leaving all other fields intact.
+    """
+    # Prevent self-downgrading (optional safeguard)
+    if current_user["userId"] == user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Admins cannot change their own role."
+        )
+
+    # Update only the 'role' field
+    result = users_collection.update_one(
+        {"userId": user_id},
+        {"$set": {"role": role_data.role}}
+    )
+
+    if result.matched_count == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with ID '{user_id}' not found."
+        )
+
+    print(f"[ROLE UPDATE] Admin {current_user['userId']} changed role of {user_id} → {role_data.role}")
+
+    return {
+        "message": "User role updated successfully.",
+        "userId": user_id,
+        "newRole": role_data.role,
+        "updatedBy": current_user["userId"]
+    }
+
+
 # ============================================================
 # 🔒 SECURE WEBHOOK RECEIVER ENDPOINT
 # ============================================================
@@ -653,3 +832,10 @@ async def receive_webhook(payload: dict, x_signature: str = Header(...), x_api_k
     return {"status": "verified"}
 
 
+#============================================================
+# Initialize default system admin creation if there is no system admin in data base
+#============================================================
+@app.on_event("startup")
+def initialize_system_admin():
+    users_collection = get_users_collection()
+    create_default_admin(users_collection)
