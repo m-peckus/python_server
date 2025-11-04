@@ -85,7 +85,9 @@ ALGORITHM = os.getenv("JWT_ALGORITHM")
 #==============================================================
 # Create system admin for user roles modification purpose
 #==============================================================
+# Import your existing admin password
 
+ADMIN_PASSWORD = os.getenv("AdminPassword") 
 def create_default_admin(users_collection):
     """Create a default admin user if none exists."""
     existing_admin = users_collection.find_one({"role": "default admin"})
@@ -97,7 +99,8 @@ def create_default_admin(users_collection):
         "userId": f"user_{uuid.uuid4().hex[:12]}",
         "name": "System Administrator",
         "email": "admin@system.local",
-        "password": pwd_context.hash("Admin@123!"),
+        # Invalid syntax error
+        "password": pwd_context.hash(ADMIN_PASSWORD),
         "apiKey": generate_api_key(),
         "webhookSecret": generate_webhook_secret(),
         "role": "system admin",
