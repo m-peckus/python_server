@@ -1,0 +1,248 @@
+============================================================
+🏦 MOCK PAYMENT GATEWAY API - USAGE REFERENCE (cURL Examples)
+Base URL: http://127.0.0.1:8000
+Notes: Local development/testing phase
+============================================================
+
+──────────────────────────────
+1️⃣  GET /api/v1/status
+Description: Check API status
+Authentication: None (public)
+──────────────────────────────
+
+curl -X GET "http://127.0.0.1:8000/api/v1/status"
+
+Sample Response:
+{
+    "status": "ok",
+    "service": "Mock Payment Gateway",
+    "version": "v1.0.0",
+    "message": "All systems operational.",
+    "metrics": {
+        "totalTransactions": 42,
+        "lastRestart": "2025-11-05T10:45:00Z"
+    }
+}
+
+──────────────────────────────
+2️⃣  POST /api/v1/users/register
+Description: Register a new user (role="user")
+Authentication: None
+──────────────────────────────
+
+curl -X POST "http://127.0.0.1:8000/api/v1/users/register" \
+-H "Content-Type: application/json" \
+-d '{
+    "name": "Alice User",
+    "email": "alice@example.com",
+    "password": "Password123!"
+}'
+
+Sample Response:
+{
+    "message": "User registered successfully.",
+    "userId": "user_1a2b3c4d5e6f",
+    "apiKey": "PK_LIVE_1A2B3C4D5E6F7G8H",
+    "webhookSecret": "SK_9A8B7C6D5E4F3G2H1I0J",
+    "role": "user",
+    "createdAt": "2025-11-05T10:45:00Z"
+}
+
+──────────────────────────────
+3️⃣  POST /api/v1/users/login
+Description: Authenticate user and receive JWT token
+Authentication: None
+──────────────────────────────
+
+# Login as regular user
+curl -X POST "http://127.0.0.1:8000/api/v1/users/login" \
+-H "Content-Type: application/json" \
+-d '{
+    "email": "alice@example.com",
+    "password": "Password123!"
+}'
+
+# Login as system_admin
+curl -X POST "http://127.0.0.1:8000/api/v1/users/login" \
+-H "Content-Type: application/json" \
+-d '{
+    "email": "admin@system.local",
+    "password": "Admin@123!"
+}'
+
+Sample Response:
+{
+    "access_token": "<JWT_TOKEN_HERE>",
+    "token_type": "bearer",
+    "userId": "user_abcd1234",
+    "role": "user"   # or "system_admin"
+}
+
+──────────────────────────────
+4️⃣  PATCH /api/v1/users/{user_id}/role
+Description: Update a user's role (only system_admin)
+Authentication: JWT bearer token
+──────────────────────────────
+
+curl -X PATCH "http://127.0.0.1:8000/api/v1/users/user_1a2b3c4d5e6f/role" \
+-H "Authorization: Bearer <SYSTEM_ADMIN_JWT>" \
+-H "Content-Type: application/json" \
+-d '{
+    "new_role": "merchant"
+}'
+
+Sample Response:
+{
+    "message": "User role updated to 'merchant'",
+    "userId": "user_1a2b3c4d5e6f"
+}
+
+Notes:
+- Allowed roles: user, merchant, admin
+- Only system_admin can perform this operation
+- Regular users or admins attempting this will get 403 Forbidden
+
+──────────────────────────────
+5️⃣  GET /api/v1/protected
+Description: Protected route (any authenticated user)
+Authentication: JWT bearer token
+──────────────────────────────
+
+curl -X GET "http://127.0.0.1:8000/api/v1/protected" \
+-H "Authorization: Bearer <JWT_TOKEN>"
+
+Sample Response:
+{
+    "message": "Access granted — authenticated user.",
+    "userId": "user_1a2b3c4d5e6f",
+    "role": "user"
+}
+
+──────────────────────────────
+6️⃣  GET /api/v1/admin/dashboard
+Description: Admin-only dashboard
+Authentication: JWT bearer token (role=admin)
+──────────────────────────────
+
+curl -X GET "http://127.0.0.1:8000/api/v1/admin/dashboard" \
+-H "Authorization: Bearer <ADMIN_JWT>"
+
+Sample Response:
+{
+    "message": "Welcome to the admin dashboard.",
+    "userId": "user_abcd1234",
+    "role": "admin"
+}
+
+──────────────────────────────
+7️⃣  POST /api/v1/payments/charge
+Description: Create a new payment transaction
+Authentication: X-API-Key header
+──────────────────────────────
+
+curl -X POST "http://127.0.0.1:8000/api/v1/payments/charge" \
+-H "X-API-Key: PK_LIVE_1A2B3C4D5E6F7G8H" \
+-H "Content-Type: application/json" \
+-d '{
+    "customerName": "Bob Customer",
+    "paymentAmount": 100.50,
+    "currency": "USD",
+    "details": "Payment for order #123",
+    "webhookUrl": "https://webhook-test.com/abc"
+}'
+
+Sample Response:
+{
+    "id": "txn_abcd1234",
+    "customerName": "Bob Customer",
+    "amount": 100.50,
+    "currency": "USD",
+    "status": "pending",
+    "created": "2025-11-05T10:50:00Z"
+}
+
+──────────────────────────────
+8️⃣  GET /api/v1/payments/all
+Description: Retrieve all payments for the user
+Authentication: X-API-Key header
+──────────────────────────────
+
+curl -X GET "http://127.0.0.1:8000/api/v1/payments/all" \
+-H "X-API-Key: PK_LIVE_1A2B3C4D5E6F7G8H"
+
+Sample Response:
+{
+    "userId": "user_1a2b3c4d5e6f",
+    "totalTransactions": 3,
+    "transactions": [
+        {
+            "id": "txn_abcd1234",
+            "customerName": "Bob Customer",
+            "amount": 100.50,
+            "currency": "USD",
+            "status": "pending",
+            "webhookUrl": "https://webhook-test.com/abc",
+            "createdAt": "2025-11-05T10:50:00Z"
+        },
+        ...
+    ]
+}
+
+──────────────────────────────
+9️⃣  POST /api/v1/webhook-receive
+Description: Receives incoming webhooks and validates HMAC signature
+Authentication: X-API-Key + X-Signature
+──────────────────────────────
+
+# Step 1: Save payload to file
+cat > payload.json <<EOF
+{
+    "event": "payment.completed",
+    "id": "txn_abc123def456",
+    "timestamp": "2025-11-05T10:45:00Z",
+    "data": {
+        "customerName": "Bob Customer",
+        "amount": 150.50,
+        "currency": "USD",
+        "status": "completed"
+    }
+}
+EOF
+
+# Step 2: Generate HMAC signature (Linux/macOS)
+WEBHOOK_SECRET="SK_9A8B7C6D5E4F3G2H1I0J"
+SIGNATURE=$(echo -n $(cat payload.json) | openssl dgst -sha256 -hmac $WEBHOOK_SECRET | sed 's/^.* //')
+
+# Step 3: Send cURL request
+curl -X POST "http://127.0.0.1:8000/api/v1/webhook-receive" \
+-H "X-API-Key: PK_LIVE_1A2B3C4D5E6F7G8H" \
+-H "X-Signature: $SIGNATURE" \
+-H "Content-Type: application/json" \
+-d @payload.json
+
+Sample Response:
+{
+    "status": "verified"
+}
+
+Notes:
+- Replace `WEBHOOK_SECRET` with user's webhookSecret
+- Replace `X-API-Key` with user's API key
+- Payload must match exactly the signed content
+
+______________________________________
+
+10️⃣ DELETE /api/v1/{resource}/{resource_id}
+Description: Delete a transaction or user. Transactions can be deleted by their owner or by system_admin/admin. Users can only be deleted by system_admin/admin. Self-deletion is not allowed.
+Authentication: JWT required (user for own transactions, system_admin or admin for any user/transaction)
+──────────────────────────────
+# Delete a transaction owned by a user
+
+curl -X DELETE "http://127.0.0.1:8000/api/v1/transactions/txn_abc123def456" \
+-H "Authorization: Bearer <USER_JWT>"
+
+# Delete a user (system_admin or admin only)
+
+curl -X DELETE "http://127.0.0.1:8000/api/v1/users/user_401622ce35cd" \
+-H "Authorization: Bearer <SYSTEM_ADMIN_JWT>"
+

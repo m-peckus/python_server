@@ -2,14 +2,15 @@
 # 🏦 MOCK PAYMENT GATEWAY API
 # Description: FastAPI-based mock payment gateway using MongoDB.
 # ============================================================
+from enum import Enum
 
-from fastapi import FastAPI, HTTPException, status, BackgroundTasks, Depends, Header
+from fastapi import FastAPI, HTTPException, status, BackgroundTasks, Depends, Header, Path
 import time
 from datetime import datetime, timezone, timedelta 
 import httpx 
 import uuid 
 from pydantic import BaseModel, Field, validator
-from typing import Optional
+from typing import Optional, Literal
 import asyncio
 
 import hmac
@@ -18,11 +19,9 @@ import json
 from passlib.context import CryptContext
 
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import Depends, status
 from jose import JWTError, jwt
 import os 
 from dotenv import load_dotenv
-
 
 
 # ============================================================
@@ -31,7 +30,7 @@ from dotenv import load_dotenv
 
 from pymongo import MongoClient
 from pymongo.collection import Collection
-from pymongo.errors import ConnectionFailure
+from pymongo.errors import ConnectionFailure, DuplicateKeyError
 from bson.objectid import ObjectId
 
 # Initialize bcrypt context
@@ -85,30 +84,43 @@ ALGORITHM = os.getenv("JWT_ALGORITHM")
 #==============================================================
 # Create system admin for user roles modification purpose
 #==============================================================
-# Import your existing admin password
 
-ADMIN_PASSWORD = os.getenv("AdminPassword") 
+ADMIN_PASSWORD = os.getenv("AdminPassword")
+
 def create_default_admin(users_collection):
-    """Create a default admin user if none exists."""
-    existing_admin = users_collection.find_one({"role": "default admin"})
+    """Create a single default system admin if none exists."""
+    admin_email = "admin@system.local"
+
+    # Ensure unique index on email field (prevents duplicates even under concurrency)
+    try:
+        users_collection.create_index("email", unique=True)
+    except Exception as e:
+        print(f"[INIT] Warning: could not create unique index on email ({e})")
+
+    # Check by email (more reliable than role)
+    existing_admin = users_collection.find_one({"email": admin_email})
     if existing_admin:
-        print("[INIT] Default admin user already exists.")
+        print(f"[INIT] Default admin already exists: {admin_email}")
         return
 
+    # Prepare new admin document
     default_admin = {
         "userId": f"user_{uuid.uuid4().hex[:12]}",
         "name": "System Administrator",
-        "email": "admin@system.local",
-        # Invalid syntax error
+        "email": admin_email,
         "password": pwd_context.hash(ADMIN_PASSWORD),
         "apiKey": generate_api_key(),
         "webhookSecret": generate_webhook_secret(),
-        "role": "system admin",
+        "role": "system_admin",
         "createdAt": datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
     }
 
-    users_collection.insert_one(default_admin)
-    print("[INIT] Default admin created: admin@system.local / Admin@123!")
+    # Insert and confirm creation
+    try:
+        users_collection.insert_one(default_admin)
+        print(f"[INIT] Default admin created: {admin_email}")
+    except Exception as e:
+        print(f"[INIT] Error creating default admin: {e}")
 
 
 
@@ -120,23 +132,15 @@ def create_default_admin(users_collection):
 #=============================================================
 
 
-def require_role(required_roles: list):
-    """Dependency to enforce role-based access."""
-    def role_checker(token: str = Depends(oauth2_scheme)):
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            user_role = payload.get("role")
-            if user_role not in required_roles:
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"Access denied. Required role(s): {required_roles}"
-                )
-            return payload
-        except JWTError:
+def require_roles(*allowed_roles: str):
+    """Return dependency enforcing allowed user roles."""
+    def role_checker(current_user=Depends(verify_jwt_token)):
+        if current_user["role"] not in allowed_roles:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid or expired token."
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access denied. Allowed roles: {allowed_roles}",
             )
+        return current_user
     return role_checker
 
 
@@ -715,6 +719,138 @@ async def get_payment_by_id(
 
     return transaction
 
+
+
+  #=============================================
+  # PATCH /api/v1/users/{user_id}/role
+  # system_admin endpoint to change user roles
+  #=============================================
+
+# Define allowed role names
+class ValidRoles(str, Enum):
+    user = "user"
+    merchant = "merchant"
+    admin = "admin"
+    #system_admin = "system_admin"
+
+class RoleUpdateRequest(BaseModel):
+    """Request model for updating user role."""
+    new_role: ValidRoles  # Ensures only valid roles are accepted
+
+@app.patch("/api/v1/users/{user_id}/role", status_code=status.HTTP_200_OK)
+async def update_user_role(
+    user_id: str,
+    role_update: RoleUpdateRequest,
+    token_data: dict = Depends(verify_jwt_token),
+    users_collection: Collection = Depends(get_users_collection)
+):
+    """Allow only 'system_admin' to update a user's role."""
+    if token_data.get("role") != "system_admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only system_admin can change user roles."
+        )
+
+    # Ensure the target user exists
+    user_doc = users_collection.find_one({"userId": user_id})
+    if not user_doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found."
+        )
+
+    # Update only the 'role' field
+    users_collection.update_one(
+        {"userId": user_id},
+        {"$set": {"role": role_update.new_role}}
+    )
+
+    print(f"[ADMIN] Role updated: {user_id} → {role_update.new_role}")
+
+    return {
+        "message": f"User role updated to '{role_update.new_role}'",
+        "userId": user_id
+    }
+
+
+# ============================================================
+# DELETE endpoint — delete a transaction (user) or a user (admin/system_admin)
+# ============================================================
+
+
+@app.delete("/api/v1/{resource}/{resource_id}", status_code=status.HTTP_200_OK)
+async def delete_resource(
+    resource: str = Path(..., description="Resource type: 'transactions' or 'users'"),
+    resource_id: str = Path(..., description="ID of the resource to delete"),
+    token_data: dict = Depends(verify_jwt_token),
+    users_collection: Collection = Depends(get_users_collection),
+    transactions_collection: Collection = Depends(get_mongo_collection)
+):
+    """
+    DELETE endpoint for:
+    1. Transactions — can be deleted by the owner user.
+    2. Users — can be deleted only by system_admin/admin.
+    
+    Only the role or ownership determines if deletion is allowed.
+    """
+
+    # -----------------------------
+    # DELETE TRANSACTION
+    # -----------------------------
+    if resource.lower() == "transactions":
+        txn_doc = transactions_collection.find_one({"id": resource_id})
+        if not txn_doc:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Transaction '{resource_id}' not found."
+            )
+
+        # Allow only owner or admin/system_admin to delete
+        if token_data["userId"] != txn_doc["ownerId"] and token_data["role"] not in ["system_admin", "admin"]:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied. Only transaction owner or admin/system_admin can delete."
+            )
+
+        transactions_collection.delete_one({"id": resource_id})
+        print(f"[DELETE] Transaction {resource_id} deleted by {token_data['userId']}")
+        return {"message": f"Transaction '{resource_id}' deleted successfully."}
+
+    # -----------------------------
+    # DELETE USER
+    # -----------------------------
+    elif resource.lower() == "users":
+        if token_data["role"] not in ["system_admin", "admin"]:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied. Only system_admin/admin can delete users."
+            )
+
+        # Prevent self-deletion (optional safeguard)
+        if token_data["userId"] == resource_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Admins cannot delete their own user account."
+            )
+
+        user_doc = users_collection.find_one({"userId": resource_id})
+        if not user_doc:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"User '{resource_id}' not found."
+            )
+
+        users_collection.delete_one({"userId": resource_id})
+        print(f"[DELETE] User {resource_id} deleted by {token_data['userId']}")
+        return {"message": f"User '{resource_id}' deleted successfully."}
+
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid resource type. Must be 'transactions' or 'users'."
+        )
+
+
 #================================================================
 # JWT protected routes
 #================================================================
@@ -728,10 +864,9 @@ async def protected_route(current_user=Depends(verify_jwt_token)):
         "userId": current_user["userId"],
         "role": current_user["role"]
     }
-
 @app.get("/api/v1/admin/dashboard")
-async def admin_dashboard(current_user=Depends(require_role("admin"))):
-    """Accessible only by admin users."""
+async def admin_dashboard(current_user=Depends(require_roles("admin", "system_admin"))):
+    """Accessible by admin and system_admin users."""
     return {
         "message": "Welcome to the admin dashboard.",
         "userId": current_user["userId"],
@@ -836,7 +971,7 @@ async def receive_webhook(payload: dict, x_signature: str = Header(...), x_api_k
 
 
 #============================================================
-# Initialize default system admin creation if there is no system admin in data base
+# Initialize default system admin creation on startup
 #============================================================
 @app.on_event("startup")
 def initialize_system_admin():
