@@ -1,0 +1,77 @@
+# Tested endpoints 
+======================
+1. TESTED! SYSTEM OPERATIONAL  curl -X GET "http://127.0.0.1:8000/api/v1/status"  
+
+2. TESTED! NEW USER CREATED, ROLE "user" curl -X POST "http://127.0.0.1:8000/api/v1/users/register"
+USER DATA  -d '{
+    "name": "Falcon Project",
+    "email": "falcon@info.com",
+    "password": "Password123!"
+}'
+
+3. TESTED! USER LOGIN SUCCESSFULL, "user" JWT RECEIVED curl -X POST "http://127.0.0.1:8000/api/v1/users/login" 
+"user" JWT "access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyX2Y5YWMzMzE1OGFjOCIsInJvbGUiOiJ1c2VyIiwiZW1haWwiOiJmYWxjb25AaW5mby5jb20iLCJleHAiOjE3NjI0Mjc5NzR9.4NcB2HCKli0Z5hpx4LHH1w1PiwPz4TQvVgkIo2ZlJO4"
+USER DATA -d '{
+    "email": "falcon@info.com",
+    "password": "Password123!"
+}'
+
+4. TESTED! SYSTEM_ADMIN LOGIN SUCCESSFULL, "system_admin" JWT RECEIVED curl -X POST "http://127.0.0.1:8000/api/v1/users/login"
+"system_admin" JWT "access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzk5ZTNmNjI0MmJjZSIsInJvbGUiOiJzeXN0ZW1fYWRtaW4iLCJlbWFpbCI6ImFkbWluQHN5c3RlbS5sb2NhbCIsImV4cCI6MTc2MjQyODI1NH0.JfMtPp0Hh69lS_fjtLML9yRz9xIgQ4ITY6n0d4KdUvI"
+USER DATA -d '{
+    "email": "admin@system.local",
+    "password": "admin#321"
+}'
+
+5. TESTED! USER'S ROLE UPDATED SECCESSFULLY, ONLY system_admin CAN UPDATE USER'S ROLE curl -X PATCH "http://127.0.0.1:8000/api/v1/users/{user_ID}/role"
+-H "Authorization: Bearer <system_admin JWT>"
+USER DATA -d '{
+    "new_role": "admin"
+}'
+
+6. TESTED! PROTECTED ROUTE ACCESSED SUCCESSFULLY WITH USER'S JWT curl -X GET "http://127.0.0.1:8000/api/v1/protected"
+-H "Authorization: Bearer <USER'S_JWT>"
+
+7. TESTED! ADMIN DASHBOARD ACCESSED SYCCESSFULLY WITH system_admin JWT curl -X GET "http://127.0.0.1:8000/api/v1/admin/dashboard"
+ ALLOWED ROLES: ('admin', 'system_admin')
+-H "Authorization: Bearer <system_admin JWT>"
+
+8. TESTED! PAYMENT TRANSACTION CREATED, WEBHOOK DISPATCHED IN THE PAYLOAD curl -X POST "http://127.0.0.1:8000/api/v1/payments/charge"
+ SEE cURL payload in api_usage_reference.txt
+ REFER TO THE API SYSTEM LOGS FOR THE WEBHOOK STATUS
+
+ 9. TESTED! PAYMENT DATA RETRIEVED, curl -X GET "http://127.0.0.1:8000/api/v1/payments/all"
+-H "X-API-Key: <USER_API_KEY>"
+
+
+10. NEXT TEST TO RUN - WEBHOOK-RECEIVE  ENDPOINT (stopped testing 06-11)
+──────────────────────────────
+9️⃣  POST /api/v1/webhook-receive
+Description: Receives incoming webhooks and validates HMAC signature
+Authentication: X-API-Key + X-Signature
+──────────────────────────────
+
+
+Can use this sample response for testing
+Sample Response:
+{
+  "userId": "user_99e3f6242bce",
+  "totalTransactions": 1,
+  "transactions": [
+    {
+      "id": "txn_831e7dbaeadb",
+      "ownerId": "user_99e3f6242bce",
+      "customerName": "Falcon Project",
+      "amount": 1900.5,
+      "currency": "USD",
+      "details": "Payment for order #123",
+      "status": "completed",
+      "webhookUrl": "https://webhook-test.com/05a8b87b72a379e33c1dad6777d2b70e",
+      "createdAt": "2025-11-06T11:13:58.910515Z"
+    }
+  ]
+}
+
+
+
+

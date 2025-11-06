@@ -84,7 +84,7 @@ Description: Update a user's role (only system_admin)
 Authentication: JWT bearer token
 ──────────────────────────────
 
-curl -X PATCH "http://127.0.0.1:8000/api/v1/users/user_1a2b3c4d5e6f/role" \
+curl -X PATCH "http://127.0.0.1:8000/api/v1/users/{user_id}/role" \
 -H "Authorization: Bearer <SYSTEM_ADMIN_JWT>" \
 -H "Content-Type: application/json" \
 -d '{
@@ -93,8 +93,8 @@ curl -X PATCH "http://127.0.0.1:8000/api/v1/users/user_1a2b3c4d5e6f/role" \
 
 Sample Response:
 {
-    "message": "User role updated to 'merchant'",
-    "userId": "user_1a2b3c4d5e6f"
+    "message":"User role updated to 'ValidRoles.admin'",
+    "userId":"user_f9ac33158ac8"
 }
 
 Notes:
@@ -121,7 +121,7 @@ Sample Response:
 ──────────────────────────────
 6️⃣  GET /api/v1/admin/dashboard
 Description: Admin-only dashboard
-Authentication: JWT bearer token (role=admin)
+Authentication: JWT bearer token. Allowed roles: ('admin', 'system_admin')
 ──────────────────────────────
 
 curl -X GET "http://127.0.0.1:8000/api/v1/admin/dashboard" \
@@ -148,7 +148,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/payments/charge" \
     "paymentAmount": 100.50,
     "currency": "USD",
     "details": "Payment for order #123",
-    "webhookUrl": "https://webhook-test.com/abc"
+    "webhookUrl": "https://webhook-test.com/05a8b87b72a379e33c1dad6777d2b70e" # live webhook URL
 }'
 
 Sample Response:
@@ -172,20 +172,21 @@ curl -X GET "http://127.0.0.1:8000/api/v1/payments/all" \
 
 Sample Response:
 {
-    "userId": "user_1a2b3c4d5e6f",
-    "totalTransactions": 3,
-    "transactions": [
-        {
-            "id": "txn_abcd1234",
-            "customerName": "Bob Customer",
-            "amount": 100.50,
-            "currency": "USD",
-            "status": "pending",
-            "webhookUrl": "https://webhook-test.com/abc",
-            "createdAt": "2025-11-05T10:50:00Z"
-        },
-        ...
-    ]
+  "userId": "user_99e3f6242bce",
+  "totalTransactions": 1,
+  "transactions": [
+    {
+      "id": "txn_831e7dbaeadb",
+      "ownerId": "user_99e3f6242bce",
+      "customerName": "Falcon Project",
+      "amount": 1900.5,
+      "currency": "USD",
+      "details": "Payment for order #123",
+      "status": "completed",
+      "webhookUrl": "https://webhook-test.com/05a8b87b72a379e33c1dad6777d2b70e",
+      "createdAt": "2025-11-06T11:13:58.910515Z"
+    }
+  ]
 }
 
 ──────────────────────────────

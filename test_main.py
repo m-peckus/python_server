@@ -5,6 +5,8 @@
 from enum import Enum
 
 from fastapi import FastAPI, HTTPException, status, BackgroundTasks, Depends, Header, Path
+from fastapi.security import OAuth2PasswordBearer
+
 import time
 from datetime import datetime, timezone, timedelta 
 import httpx 
@@ -18,11 +20,9 @@ import hashlib
 import json
 from passlib.context import CryptContext
 
-from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 import os 
 from dotenv import load_dotenv
-
 
 # ============================================================
 # 1️⃣  MONGODB CONFIGURATION & INITIALIZATION
@@ -273,8 +273,6 @@ async def register_user(
 # 3️⃣ USER LOGIN (JWT Token Issuance)
 # ============================================================
 
-from jose import JWTError, jwt
-from datetime import datetime, timedelta
 
 # Load JWT config from .env
 JWT_SECRET = os.getenv("JWT_SECRET", "supersecretjwtkey")
@@ -442,13 +440,9 @@ async def dispatch_webhook(url: str, payload: dict):
     except httpx.RequestError as exc:
         print(f"[WEBHOOK ERROR] Failed to send webhook: {exc}")
 
-
-
 # ============================================================
 # Utility: Complete payment after delay
 # ============================================================
-
-
 
 async def complete_payment_after_delay(transaction_id: str, collection: Collection, webhook_url: str):
     """Wait 5 seconds, mark payment as completed, and send webhook."""
@@ -483,9 +477,6 @@ async def complete_payment_after_delay(transaction_id: str, collection: Collecti
         # Send signed webhook
         await dispatch_secure_webhook(webhook_url, payload, secret)
         print(f"[BACKGROUND] Transaction {transaction_id} marked as completed and webhook sent securely.")
-
-
-
 
 # ============================================================
 # 6️⃣  API ENDPOINTS
@@ -578,8 +569,6 @@ async def process_new_payment(
         "status": new_transaction["status"],
         "created": new_transaction["createdAt"]
     }
-
-
 
 # ------------------------------------------------------------
 # GET /api/v1/payments/all
@@ -693,8 +682,6 @@ async def query_user_payments(
     return response_data
 
 
-
-
 # ------------------------------------------------------------
 # GET /api/v1/payments/{transaction_id}
 # Authenticated endpoint — fetches transaction details by ID.
@@ -718,8 +705,6 @@ async def get_payment_by_id(
         )
 
     return transaction
-
-
 
   #=============================================
   # PATCH /api/v1/users/{user_id}/role
@@ -776,7 +761,6 @@ async def update_user_role(
 # ============================================================
 # DELETE endpoint — delete a transaction (user) or a user (admin/system_admin)
 # ============================================================
-
 
 @app.delete("/api/v1/{resource}/{resource_id}", status_code=status.HTTP_200_OK)
 async def delete_resource(
@@ -855,7 +839,6 @@ async def delete_resource(
 # JWT protected routes
 #================================================================
 
-
 @app.get("/api/v1/protected")
 async def protected_route(current_user=Depends(verify_jwt_token)):
     """Accessible by any logged-in user (merchant/admin)."""
@@ -918,17 +901,11 @@ async def update_user_role(
 # 🔒 SECURE WEBHOOK RECEIVER ENDPOINT
 # ============================================================
 
-from fastapi import Header, HTTPException, status
-
 def verify_webhook_signature(payload: dict, signature: str, secret: str):
     """
     Verifies that the incoming webhook signature matches the payload.
     Raises HTTPException if verification fails.
     """
-    import hmac
-    import hashlib
-    import json
-
     payload_bytes = json.dumps(payload, separators=(',', ':')).encode('utf-8')
     expected_signature = hmac.new(secret.encode('utf-8'), payload_bytes, hashlib.sha256).hexdigest()
 
