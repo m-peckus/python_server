@@ -44,34 +44,13 @@ USER DATA -d '{
 -H "X-API-Key: <USER_API_KEY>"
 
 
-10. NEXT TEST TO RUN - WEBHOOK-RECEIVE  ENDPOINT (stopped testing 06-11)
-──────────────────────────────
-9️⃣  POST /api/v1/webhook-receive
+10. TESTED! SENT A WEBHOOK, VALIDATED HMAC SIGNATURE, curl -X POST "http://127.0.0.1:8000/api/v1/webhook-receive" 
 Description: Receives incoming webhooks and validates HMAC signature
 Authentication: X-API-Key + X-Signature
-──────────────────────────────
+  1. Run generate_curl.py file, provide mandatory input data
+  2. Receive terminal output - ready to send cURL payload
+  3. Send cURL payload, evaluate the reponse
 
 
-Can use this sample response for testing
-Sample Response:
-{
-  "userId": "user_99e3f6242bce",
-  "totalTransactions": 1,
-  "transactions": [
-    {
-      "id": "txn_831e7dbaeadb",
-      "ownerId": "user_99e3f6242bce",
-      "customerName": "Falcon Project",
-      "amount": 1900.5,
-      "currency": "USD",
-      "details": "Payment for order #123",
-      "status": "completed",
-      "webhookUrl": "https://webhook-test.com/05a8b87b72a379e33c1dad6777d2b70e",
-      "createdAt": "2025-11-06T11:13:58.910515Z"
-    }
-  ]
-}
-
-
-
+11. NEXT TEST DELETE ENDPOINT (stopped 09-11) 
 
