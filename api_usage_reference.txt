@@ -251,6 +251,7 @@ curl -X GET "http://127.0.0.1:8000/api/v1/payments/query" \
 # Filter transactions by minimum and maximum amount
 
 curl -X GET "http://127.0.0.1:8000/api/v1/payments/query?minAmount=100&maxAmount=500" \
+-H "X-API-Key: USER_API_KEY"
 -H "Authorization: Bearer <USER_JWT>"
 
 # Sort transactions by field and order
