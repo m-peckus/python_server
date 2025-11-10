@@ -2,8 +2,9 @@
 ======================
 1. TESTED! SYSTEM OPERATIONAL  curl -X GET "http://127.0.0.1:8000/api/v1/status"  
 
-2. TESTED! NEW USER CREATED, ROLE "user" curl -X POST "http://127.0.0.1:8000/api/v1/users/register"
-USER DATA  -d '{
+2. TESTED! NEW USER CREATED, ROLE "user" curl -X POST "http://127.0.0.1:8000/api/v1/users/register" \
+-H "Content-Type: application/json" \
+-d '{
     "name": "Falcon Project",
     "email": "falcon@info.com",
     "password": "Password123!"
@@ -11,10 +12,13 @@ USER DATA  -d '{
 
 3. TESTED! USER LOGIN SUCCESSFULL, "user" JWT RECEIVED curl -X POST "http://127.0.0.1:8000/api/v1/users/login" 
 "user" JWT "access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyX2Y5YWMzMzE1OGFjOCIsInJvbGUiOiJ1c2VyIiwiZW1haWwiOiJmYWxjb25AaW5mby5jb20iLCJleHAiOjE3NjI0Mjc5NzR9.4NcB2HCKli0Z5hpx4LHH1w1PiwPz4TQvVgkIo2ZlJO4"
-USER DATA -d '{
-    "email": "falcon@info.com",
+curl -X POST "http://127.0.0.1:8000/api/v1/users/login" \
+-H "Content-Type: application/json" \
+-d '{
+    "email": "alice@example.com",
     "password": "Password123!"
 }'
+
 
 4. TESTED! SYSTEM_ADMIN LOGIN SUCCESSFULL, "system_admin" JWT RECEIVED curl -X POST "http://127.0.0.1:8000/api/v1/users/login"
 "system_admin" JWT "access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzk5ZTNmNjI0MmJjZSIsInJvbGUiOiJzeXN0ZW1fYWRtaW4iLCJlbWFpbCI6ImFkbWluQHN5c3RlbS5sb2NhbCIsImV4cCI6MTc2MjQyODI1NH0.JfMtPp0Hh69lS_fjtLML9yRz9xIgQ4ITY6n0d4KdUvI"
@@ -52,5 +56,29 @@ Authentication: X-API-Key + X-Signature
   3. Send cURL payload, evaluate the reponse
 
 
-11. NEXT TEST DELETE ENDPOINT (stopped 09-11) 
+11. TESTED! DELETED USER TRANSACTION, DELETED USER. USE SYSTEM_ADMIN JWT TO DELETE USER OR USER TRANSACTION. 
+USE USER JWT TO DELETE TRANSACTION FOR THE USER
 
+DELETE /api/v1/transactions/{transaction_id} # TO DELETE TRANSACTION
+DELETE /api/v1/users/{user_id} # TO DELETE USER
+
+Authentication: JWT required (user for own transactions, system_admin or admin for any user/transaction)
+Description: 
+Delete a transaction or a user. 
+Transactions can be deleted by their owner or by system_admin/admin. 
+Users can only be deleted by system_admin/admin. 
+Self-deletion is not allowed.
+──────────────────────────────
+# Example - delete a user
+
+curl -X DELETE "http://127.0.0.1:8000/api/v1/users/user_99e3f6242bce" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzk5ZTNmNjI0MmJjZSIsInJvbGUiOiJzeXN0ZW1fYWRtaW4iLCJlbWFpbCI6ImFkbWluQHN5c3RlbS5sb2NhbCIsImV4cCI6MTc2Mjc3NjM2OH0.URs4rlSuk-mUk-OYsf00eIGRt3i8rQoAB0CUaMFl3Oo"
+
+
+# Example - delete a transaction
+
+curl -X DELETE "http://127.0.0.1:8000/api/v1/transactions/id_99e3f6242bce" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzk5ZTNmNjI0MmJjZSIsInJvbGUiOiJzeXN0ZW1fYWRtaW4iLCJlbWFpbCI6ImFkbWluQHN5c3RlbS5sb2NhbCIsImV4cCI6MTc2Mjc3NjM2OH0.URs4rlSuk-mUk-OYsf00eIGRt3i8rQoAB0CUaMFl3Oo"
+
+
+12. stopped here 11-11

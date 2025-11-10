@@ -225,13 +225,77 @@ ______________________________________
 Description: Delete a transaction or user. Transactions can be deleted by their owner or by system_admin/admin. Users can only be deleted by system_admin/admin. Self-deletion is not allowed.
 Authentication: JWT required (user for own transactions, system_admin or admin for any user/transaction)
 ──────────────────────────────
-# Delete a transaction owned by a user
+# Delete a transaction owned by a user (user or system_admin)
 
-curl -X DELETE "http://127.0.0.1:8000/api/v1/transactions/txn_abc123def456" \
+curl -X DELETE "http://127.0.0.1:8000/api/v1/transactions/{transaction_id}" \
 -H "Authorization: Bearer <USER_JWT>"
 
 # Delete a user (system_admin or admin only)
 
-curl -X DELETE "http://127.0.0.1:8000/api/v1/users/user_401622ce35cd" \
+curl -X DELETE "http://127.0.0.1:8000/api/v1/users/{user_id}" \
 -H "Authorization: Bearer <SYSTEM_ADMIN_JWT>"
 
+
+
+──────────────────────────────
+1️⃣1️⃣ GET /api/v1/payments/query
+Description: Retrieve user transactions with optional filtering and sorting
+Authentication: JWT bearer token (any authenticated user)
+──────────────────────────────
+
+# Get all transactions for authenticated user
+
+curl -X GET "http://127.0.0.1:8000/api/v1/payments/query" \
+-H "Authorization: Bearer <USER_JWT>"
+
+# Filter transactions by minimum and maximum amount
+
+curl -X GET "http://127.0.0.1:8000/api/v1/payments/query?minAmount=100&maxAmount=500" \
+-H "Authorization: Bearer <USER_JWT>"
+
+# Sort transactions by field and order
+
+curl -X GET "http://127.0.0.1:8000/api/v1/payments/query?sortBy=amount&sortOrder=asc" \
+-H "Authorization: Bearer <USER_JWT>"
+
+# Sample Response:
+
+{
+    "userId": "user_99e3f6242bce",
+    "totalTransactions": 2,
+    "transactions": [
+        {
+            "id": "txn_1a2b3c4d5e6f",
+            "ownerId": "user_99e3f6242bce",
+            "customerName": "Bob Customer",
+            "amount": 150.75,
+            "currency": "USD",
+            "details": "Payment for order #451",
+            "status": "completed",
+            "createdAt": "2025-11-06T11:13:58.910515Z"
+        },
+        {
+            "id": "txn_7e8f9a0b1c2d",
+            "ownerId": "user_99e3f6242bce",
+            "customerName": "Alice Vendor",
+            "amount": 300.25,
+            "currency": "USD",
+            "details": "Refund for order #552",
+            "status": "pending",
+            "createdAt": "2025-11-07T09:15:12.110215Z"
+        }
+    ]
+}
+
+
+Notes:
+
+Filters:
+minAmount: Minimum payment amount to include
+maxAmount: Maximum payment amount to include
+Sorting:
+sortBy: Field to sort results by (createdAt, amount, etc.)
+sortOrder: Either asc (ascending) or desc (descending)
+If no transactions match the filters, returns 404 Not Found.
+Designed for user-level access — each user only sees their own transactions.
+──────────────────────────────
