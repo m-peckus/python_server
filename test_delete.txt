@@ -1,0 +1,12 @@
+curl -X POST "http://127.0.0.1:8000/api/v1/users/login" \
+-H "Content-Type: application/json" \
+-d '{
+    "email": "alice@example.com",
+    "password": "Password123!"
+}'
+{"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzgwNmFjN2YyZTg4YiIsInJvbGUiOiJ1c2VyIiwiZW1haWwiOiJhbGljZUBleGFtcGxlLmNvbSIsImV4cCI6MTc2MjgwNTIxOX0.zJqwGAFqtiKZkd7bodt0h0_tL-7Nw4w-FAPm42nmIZU","token_type":"bearer","userId":"user_806ac7f2e88b","role":"user"}
+
+
+curl -X GET "http://127.0.0.1:8000/api/v1/payments/query?minAmount=100&maxAmount=270" \
+-H "X-API-Key: PK_LIVE_B734B6278A884503"
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzgwNmFjN2YyZTg4YiIsInJvbGUiOiJ1c2VyIiwiZW1haWwiOiJhbGljZUBleGFtcGxlLmNvbSIsImV4cCI6MTc2MjgwNTIxOX0.zJqwGAFqtiKZkd7bodt0h0_tL-7Nw4w-FAPm42nmIZU"
