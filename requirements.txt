@@ -4,5 +4,6 @@ python-dotenv
 httpx
 pymongo
 pydantic
-passlib[bcrypt]
+passlib[bcrypt]==1.8.2
+bcrypt>=4.0.1
 python-jose[cryptography]
