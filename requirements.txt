@@ -5,3 +5,4 @@ httpx
 pymongo
 pydantic
 passlib[bcrypt]
+python-jose[cryptography]
