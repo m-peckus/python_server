@@ -197,8 +197,8 @@ Authentication: X-API-Key + X-Signature
 
 curl -X POST "http://127.0.0.1:8000/api/v1/webhook-receive"
 
-  1. Run generate_curl.py file, provide mandatory data
-  2. Receive terminal output - ready to send cURL payload
+  1. Run generate_curl.py file, provide required data
+  2. The terminal output will display the ready to send cURL payload
   3. Send the cURL payload, evaluate the reponse
 
 
@@ -240,23 +240,25 @@ curl -X DELETE "http://127.0.0.1:8000/api/v1/users/{user_id}" \
 ──────────────────────────────
 1️⃣1️⃣ GET /api/v1/payments/query
 Description: Retrieve user transactions with optional filtering and sorting
-Authentication: JWT bearer token (any authenticated user)
+Authentication: X-API-Key header, JWT bearer token (any authenticated user)
 ──────────────────────────────
 
 # Get all transactions for authenticated user
 
 curl -X GET "http://127.0.0.1:8000/api/v1/payments/query" \
+-H "X-API-Key: USER_API_KEY" \
 -H "Authorization: Bearer <USER_JWT>"
 
-# Filter transactions by minimum and maximum amount
+# Filter transactions by minimum and maximum amount as query parameters
 
 curl -X GET "http://127.0.0.1:8000/api/v1/payments/query?minAmount=100&maxAmount=500" \
--H "X-API-Key: USER_API_KEY"
+-H "X-API-Key: USER_API_KEY" \
 -H "Authorization: Bearer <USER_JWT>"
 
-# Sort transactions by field and order
+# Sort transactions by field and order as query parameters
 
 curl -X GET "http://127.0.0.1:8000/api/v1/payments/query?sortBy=amount&sortOrder=asc" \
+-H "X-API-Key: USER_API_KEY" \
 -H "Authorization: Bearer <USER_JWT>"
 
 # Sample Response:
