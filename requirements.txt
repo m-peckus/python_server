@@ -4,3 +4,4 @@ python-dotenv
 httpx
 pymongo
 pydantic
+passlib[bcrypt]
