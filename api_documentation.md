@@ -1,0 +1,430 @@
+# 🏦 Mock Payment Gateway API — Reference Documentation
+
+**Version:** v1.0.0  
+**Environment:** Live testing (deployed instance)  
+**Base URL:** `https://mock-payment-api-v7a7.onrender.com`  
+**Notes:** Replace placeholders such as `<JWT_TOKEN>`, `<SYSTEM_ADMIN_JWT>`, `<USER_API_KEY>` with actual values when using the API.
+
+---
+
+## 📘 Table of Contents
+
+1. [Overview](#overview)  
+2. [Authentication](#authentication)  
+3. [Endpoints](#endpoints)  
+   - [1️. GET /api/v1/status](#1️⃣-get-apiv1status)  
+   - [2️. POST /api/v1/users/register](#2️⃣-post-apiv1usersregister)  
+   - [3️. POST /api/v1/users/login](#3️⃣-post-apiv1userslogin)  
+   - [4️. PATCH /api/v1/usersuser_idrole](#4️⃣-patch-apiv1usersuser_idrole)  
+   - [5️. GET /api/v1/protected](#5️⃣-get-apiv1protected)  
+   - [6️. GET /api/v1/admin/dashboard](#6️⃣-get-apiv1admindashboard)  
+   - [7️. POST /api/v1/payments/charge](#7️⃣-post-apiv1paymentscharge)  
+   - [8️. GET /api/v1/payments/all](#8️⃣-get-apiv1paymentsall)  
+   - [9️. POST /api/v1/webhook-receive](#9️⃣-post-apiv1webhook-receive)  
+   - [10. DELETE /api/v1/{resource}/{resource_id}](#🔟-delete-apiv1resourceresource_id)  
+   - [1️1. GET /api/v1/payments/query](#1️⃣1️⃣-get-apiv1paymentsquery)
+
+---
+
+## 🧭 Overview
+
+The **Mock Payment Gateway API** provides endpoints to simulate a real payment platform environment.  
+It supports user registration, authentication, role management, transaction processing, and webhook verification.
+
+All requests should be made to:
+
+- Development: http://127.0.0.1:8000  
+- Live (deployed instance): https://mock-payment-api-v7a7.onrender.com
+
+
+---
+
+## 🔐 Authentication
+
+This API supports three authentication methods depending on the endpoint:
+
+| Type | Header Key | Description |
+|------|-------------|-------------|
+| **Public** | — | No authentication required |
+| **JWT Bearer Token** | `Authorization: Bearer <JWT_TOKEN>` | Used for protected, admin, and system operations |
+| **API Key** | `X-API-Key: <USER_API_KEY>` | Used for payment-related endpoints and webhook calls |
+
+---
+
+## 🚀 Endpoints
+
+---
+
+### 1️. GET `/api/v1/status`
+
+**Description:** Check API status.  
+**Authentication:** None.
+
+**Request:**
+```
+bash
+
+curl -X GET "https://mock-payment-api-v7a7.onrender.com/api/v1/status"
+
+```
+**Sample Response:**  
+
+```
+json
+
+{
+    "status": "ok",
+    "service": "Mock Payment Gateway",
+    "version": "v1.0.0",
+    "message": "All systems operational.",
+    "metrics": {
+        "totalTransactions": 42,
+        "lastRestart": "2025-11-05T10:45:00Z"
+    }
+}
+```
+### 2️. POST /api/v1/users/register
+
+**Description:** Register a new user (default role: user).  
+**Authentication:** None.
+
+**Request:**
+```
+bash
+
+curl -X POST "https://mock-payment-api-v7a7.onrender.com/api/v1/users/register" \
+-H "Content-Type: application/json" \
+-d '{
+    "name": "Acme Finance",
+    "email": "acme@office.com",
+    "password": "Password123!"
+}'
+```
+
+**Sample Response:**  
+
+```
+json
+
+{
+    "message": "User registered successfully.",
+    "userId": "user_1a2b3c4d5e6f",
+    "apiKey": "PK_LIVE_1A2B3C4D5E6F7G8H",
+    "webhookSecret": "SK_9A8B7C6D5E4F3G2H1I0J",
+    "role": "user",
+    "createdAt": "2025-11-05T10:45:00Z"
+}
+```
+
+### 3️. POST /api/v1/users/login  
+
+**Description:** Authenticate a user and receive a JWT token.  
+**Authentication:**  None.  
+
+**Request (Regular User):**  
+
+```
+bash
+
+curl -X POST "https://mock-payment-api-v7a7.onrender.com/api/v1/users/login" \
+-H "Content-Type: application/json" \
+-d '{
+    "email": "acme@office.com",
+    "password": "Password123!"
+}'
+```
+**Request (System Admin):**  
+
+```
+bash
+
+curl -X POST "https://mock-payment-api-v7a7.onrender.com/api/v1/users/login" \
+-H "Content-Type: application/json" \
+-d '{
+    "email": "admin@system.local",
+    "password": "Admin@123!"
+}'
+```
+**Sample Response:**  
+```
+json
+
+{
+    "access_token": "<JWT_TOKEN>",
+    "token_type": "bearer",
+    "userId": "user_abcd1234",
+    "role": "user"
+}
+```
+
+### 4️. PATCH /api/v1/users/{user_id}/role  
+
+**Description:** Update a user’s role. Only system_admin users are allowed.  
+**Authentication:** JWT bearer token.  
+
+**Request:**  
+```
+bash
+
+curl -X PATCH "https://mock-payment-api-v7a7.onrender.com/api/v1/users/{user_id}/role" \
+-H "Authorization: Bearer <SYSTEM_ADMIN_JWT>" \
+-H "Content-Type: application/json" \
+-d '{
+    "new_role": "merchant"
+}'
+```
+**Sample Response:**  
+```
+json
+
+{
+    "message": "User role updated to 'ValidRoles.merchant'",
+    "userId": "user_f9ac33158ac8"
+}
+```
+
+**Notes:**  
+
+- Allowed roles: ```user```, ```merchant```, ```admin```
+
+- Only system_admin can perform this operation
+
+- Unauthorized users receive 403 Forbidden
+
+
+### 5️. GET /api/v1/protected   
+
+**Description:** Access-protected route for any authenticated user.  
+**Authentication:** JWT bearer token.  
+
+**Request:**  
+```
+bash 
+
+curl -X GET "https://mock-payment-api-v7a7.onrender.com/api/v1/protected" \
+-H "Authorization: Bearer <JWT_TOKEN>"
+```
+**Sample Response:**  
+```
+json
+
+{
+    "message": "Access granted — authenticated user.",
+    "userId": "user_1a2b3c4d5e6f",
+    "role": "user"
+}
+```
+
+### 6️. GET /api/v1/admin/dashboard  
+
+**Description:** Admin-only dashboard.  
+**Authentication:** JWT bearer token.  
+**Allowed Roles:** ```admin```, ```system_admin```.  
+
+**Request:** 
+```
+bash
+
+curl -X GET "https://mock-payment-api-v7a7.onrender.com/api/v1/admin/dashboard" \
+-H "Authorization: Bearer <ADMIN_JWT>"
+```
+**Sample Response:**
+```
+json
+
+{
+    "message": "Welcome to the admin dashboard.",
+    "userId": "user_abcd1234",
+    "role": "admin"
+}
+
+```
+
+### 7️. POST /api/v1/payments/charge  
+
+**Description:** Create a new payment transaction.  
+**Authentication:** X-API-Key header.  
+
+**Request:** 
+```
+bash
+
+curl -X POST "https://mock-payment-api-v7a7.onrender.com/api/v1/payments/charge" \
+-H "X-API-Key: <USER_API_KEY>" \
+-H "Content-Type: application/json" \
+-d '{
+    "customerName": "Acme Corporation",
+    "paymentAmount": 1000.00,
+    "currency": "USD",
+    "details": "Payment for order #123",
+    "webhookUrl": "https://webhook-test.com/example"
+}'
+```
+
+**Sample Response:**  
+```
+json
+
+{
+    "id": "txn_abcd1234",
+    "customerName": "Acme Corporation",
+    "amount": 1000.00,
+    "currency": "USD",
+    "status": "pending",
+    "created": "2025-11-05T10:50:00Z"
+}
+```
+
+### 8️. GET /api/v1/payments/all  
+
+**Description:** Retrieve all payments for the authenticated user.  
+**Authentication:** X-API-Key header.  
+
+**Request:**  
+```
+bash
+
+curl -X GET "https://mock-payment-api-v7a7.onrender.com/api/v1/payments/all" \
+-H "X-API-Key: <USER_API_KEY>"
+```
+**Sample Response:**  
+```
+json
+{
+  "userId": "user_99e3f6242bce",
+  "totalTransactions": 1,
+  "transactions": [
+    {
+      "id": "txn_831e7dbaeadb",
+      "ownerId": "user_99e3f6242bce",
+      "customerName": "Acme Corporation",
+      "amount": 1900.5,
+      "currency": "USD",
+      "details": "Payment for order #123",
+      "status": "completed",
+      "webhookUrl": "https://webhook-test.com/example",
+      "createdAt": "2025-11-06T11:13:58.910515Z"
+    }
+  ]
+}
+```
+
+### 9️. POST /api/v1/webhook-receive   
+
+**Description:** Receive incoming webhooks and validate HMAC signatures.  
+**Authentication:** X-API-Key + X-Signature.  
+**Usage Notes:**  
+1. Run the generate_curl.py script.  
+2. The script:  
+- Fetches the user's webhook secret from MongoDB.
+- Generates a sample JSON payload (e.g., payment.completed event).
+- Creates an HMAC SHA-256 signature of the payload.
+- Example curl response:  
+```
+curl -X POST "<BASE_URL>/api/v1/webhook-receive" \
+-H "Content-Type: application/json" \
+-H "X-API-Key: PK_LIVE_C069A5B0E8F54E05" \
+-H "X-Signature: 854611c652b7817ef4b6bdd02ff2812f4671a8bd6274c9c93f05098c5fc15836" \
+-d '{"event": "payment.completed", "id": "txn_6147ca82b25e", "data": {"customerName": "Acme Corporation", "amount": 1000.5, "status": "completed"}}'
+```
+**Purpose:**  
+The signature serves as proof of authenticity that the webhook was generated by the authorized system.  
+
+### 10. DELETE /api/v1/{resource}/{resource_id}  
+
+**Description:** Delete a transaction or user.  
+**Authentication:** JWT bearer token.  
+**Notes:**
+- Transactions: deletable by owner or system_admin/admin.  
+- Users: deletable by system_admin/admin only.  
+- Self-deletion is not allowed.  
+
+**Delete Transaction Example:**  
+```
+bash
+
+curl -X DELETE "https://mock-payment-api-v7a7.onrender.com/api/v1/transactions/{transaction_id}" \
+-H "Authorization: Bearer <USER_JWT>"
+```
+**Delete User Example:**  
+```
+bash
+
+curl -X DELETE "https://mock-payment-api-v7a7.onrender.com/api/v1/users/{user_id}" \
+-H "Authorization: Bearer <SYSTEM_ADMIN_JWT>"
+```
+
+### 1️1. GET /api/v1/payments/query  
+
+**Description:** Retrieve user transactions with optional filtering and sorting.  
+**Authentication:** X-API-Key header + JWT bearer token (any authenticated user).  
+**Examples:**  
+1. Retrieve all transactions  
+```
+bash
+
+curl -X GET "https://mock-payment-api-v7a7.onrender.com/api/v1/payments/query" \
+-H "X-API-Key: <USER_API_KEY>" \
+-H "Authorization: Bearer <USER_JWT>"
+```
+2. Filter by amount range  
+```
+bash
+
+curl -X GET "https://mock-payment-api-v7a7.onrender.com/api/v1/payments/query?minAmount=100&maxAmount=500" \
+-H "X-API-Key: <USER_API_KEY>" \
+-H "Authorization: Bearer <USER_JWT>"
+```
+3. Sort results  
+```
+bash
+
+curl -X GET "https://mock-payment-api-v7a7.onrender.com/api/v1/payments/query?sortBy=amount&sortOrder=asc" \
+-H "X-API-Key: <USER_API_KEY>" \
+-H "Authorization: Bearer <USER_JWT>"
+```
+**Sample Response:**  
+```
+json
+
+{
+    "userId": "user_99e3f6242bce",
+    "totalTransactions": 2,
+    "transactions": [
+        {
+            "id": "txn_1a2b3c4d5e6f",
+            "ownerId": "user_99e3f6242bce",
+            "customerName": "Bob Customer",
+            "amount": 150.75,
+            "currency": "USD",
+            "details": "Payment for order #451",
+            "status": "completed",
+            "createdAt": "2025-11-06T11:13:58.910515Z"
+        },
+        {
+            "id": "txn_7e8f9a0b1c2d",
+            "ownerId": "user_99e3f6242bce",
+            "customerName": "Alice Vendor",
+            "amount": 300.25,
+            "currency": "USD",
+            "details": "Refund for order #552",
+            "status": "pending",
+            "createdAt": "2025-11-07T09:15:12.110215Z"
+        }
+    ]
+}
+```
+
+
+**Query Parameters:**  
+| Parameter   | Description                              | Example          |
+| ----------- | ---------------------------------------- | ---------------- |
+| `minAmount` | Minimum payment amount                   | `?minAmount=100` |
+| `maxAmount` | Maximum payment amount                   | `?maxAmount=500` |
+| `sortBy`    | Field to sort by (`amount`, `createdAt`) | `?sortBy=amount` |
+| `sortOrder` | Sort order (`asc`, `desc`)               | `?sortOrder=asc` |
+
+**Notes:**  
+- If no transactions match filters → returns 404 Not Found.  
+- Each user only sees their own transactions.  
+
