@@ -1,4 +1,4 @@
-# 🏦 Mock Payment Gateway API — Reference Documentation
+#  Mock Payment Gateway API — Reference Documentation
 
 **Version:** v1.0.0  
 **Environment:** Live testing (deployed instance)  
