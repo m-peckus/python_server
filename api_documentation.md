@@ -28,8 +28,7 @@
 
 ##  Overview  
 
-The **Mock Payment Gateway API** provides endpoints to simulate a real payment platform environment.  
-It supports user registration, authentication, role management, transaction processing, and webhook verification.
+The **Mock Payment Gateway API** is an educational project designed to simulate a real-world payment platform environment. It provides endpoints for user registration, authentication, role management, transaction processing, and webhook verification. Credit card handling and tokenization are intentionally excluded to simplify implementation and keep the focus on core payment logic.    
 
 All requests should be made to:
 
@@ -45,7 +44,7 @@ This API supports three authentication methods depending on the endpoint:
 
 | Type | Header Key | Description |
 |------|-------------|-------------|
-| **Public** | — | No authentication required |
+| **Password-based authentication** | — | Used during user registration and authenticate existing users prior to JWT generation. |
 | **JWT Bearer Token** | `Authorization: Bearer <JWT_TOKEN>` | Used for protected, admin, and system operations |
 | **API Key** | `X-API-Key: <USER_API_KEY>` | Used for payment-related endpoints and webhook calls |
 
