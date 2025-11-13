@@ -32,7 +32,7 @@ The **Mock Payment Gateway API** is an educational project designed to simulate 
 
 All requests should be made to:
 
-- Development: http://127.0.0.1:8000  
+- Development (local server): http://127.0.0.1:8000  
 - Live (deployed instance): https://mock-payment-api-v7a7.onrender.com
 
 
@@ -44,7 +44,7 @@ This API supports three authentication methods depending on the endpoint:
 
 | Type | Header Key | Description |
 |------|-------------|-------------|
-| **Password-based authentication** | — | Used during user registration and authenticate existing users prior to JWT generation. |
+| **Password-based authentication** | ———   | Used during user registration and authenticate existing users prior to JWT generation |
 | **JWT Bearer Token** | `Authorization: Bearer <JWT_TOKEN>` | Used for protected, admin, and system operations |
 | **API Key** | `X-API-Key: <USER_API_KEY>` | Used for payment-related endpoints and webhook calls |
 
