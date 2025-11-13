@@ -44,7 +44,7 @@ This API supports three authentication methods depending on the endpoint:
 
 | Type | Header Key | Description |
 |------|-------------|-------------|
-| **Password-based authentication** | ———   | Used during user registration and authenticate existing users prior to JWT generation |
+| **Password-based authentication** | —   | Used during user registration and authenticate existing users prior to JWT generation |
 | **JWT Bearer Token** | `Authorization: Bearer <JWT_TOKEN>` | Used for protected, admin, and system operations |
 | **API Key** | `X-API-Key: <USER_API_KEY>` | Used for payment-related endpoints and webhook calls |
 
@@ -85,7 +85,7 @@ json
 ## `POST /api/v1/users/register`  
 
 **Description:** Register a new user (default role: user).  
-**Authentication:** None.
+**Authentication:** Password.
 
 **Request:**
 ```
@@ -118,7 +118,7 @@ json
 ## `POST /api/v1/users/login`  
 
 **Description:** Authenticate a user and receive a JWT token.  
-**Authentication:**  None.  
+**Authentication:**  Password.  
 
 **Request (Regular User):**  
 
@@ -318,7 +318,7 @@ json
 - Fetches the user's webhook secret from MongoDB.
 - Generates a sample JSON payload (e.g., payment.completed event).
 - Creates an HMAC SHA-256 signature of the payload.
-- Example curl response:  
+- Example output produced by generate_curl.py:    
 ```
 curl -X POST "<BASE_URL>/api/v1/webhook-receive" \
 -H "Content-Type: application/json" \
@@ -393,7 +393,7 @@ json
         {
             "id": "txn_1a2b3c4d5e6f",
             "ownerId": "user_99e3f6242bce",
-            "customerName": "Bob Customer",
+            "customerName": "Project Falcon",
             "amount": 150.75,
             "currency": "USD",
             "details": "Payment for order #451",
@@ -403,7 +403,7 @@ json
         {
             "id": "txn_7e8f9a0b1c2d",
             "ownerId": "user_99e3f6242bce",
-            "customerName": "Alice Vendor",
+            "customerName": "Project Falcon",
             "amount": 300.25,
             "currency": "USD",
             "details": "Refund for order #552",
