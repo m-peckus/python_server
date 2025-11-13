@@ -28,7 +28,7 @@
 
 ##  Overview  
 
-The **Mock Payment Gateway API** is an educational project designed to simulate a real-world payment platform environment. It provides endpoints for user registration, authentication, role management, transaction processing, and webhook verification. Credit card handling and tokenization are intentionally excluded to simplify implementation and keep the focus on core payment logic.    
+The Mock **Payment Gateway API** is an educational project designed to simulate a real-world payment platform environment. It provides endpoints for user registration, authentication, role management, transaction processing, and webhook verification. Credit card handling and tokenization are intentionally excluded to simplify implementation and keep the focus on core payment logic. The API is connected to MongoDB for persistent data storage, closely reflecting how real PSP systems manage user credentials, API keys, tokens, and transaction records.      
 
 All requests should be made to:
 
