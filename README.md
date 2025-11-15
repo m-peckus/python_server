@@ -4,7 +4,7 @@
 The Mock **Payment Gateway API** is a learning-focused project that replicates core functionalities of real-world payment service provider (PSP) systems. It was built to demonstrate how user authentication, role-based access control, secure transactions, and webhook verification work in a real API environment.  
 While it mirrors the structure and behavior of production payment APIs, credit card handling and tokenization are intentionally excluded to simplify implementation and focus on core logic such as authentication, authorization, and payment processing.  
 
-
+---
  Features  
 
 **User Management** — Register, authenticate, and assign user roles (user, merchant, admin, system_admin).  
@@ -13,6 +13,8 @@ While it mirrors the structure and behavior of production payment APIs, credit c
 **Transaction Processing** — Simulates payment creation, retrieval, and deletion.  
 **Webhook Simulation** — Demonstrates HMAC SHA-256 signature verification for event authenticity.  
 **MongoDB Integration** — Ensures persistent storage of users, API keys, JWT tokens, and transaction records.    
+
+---
 
 Educational Focus
 
@@ -23,6 +25,7 @@ Role-based authorization for users, merchants, and administrators.
 Webhook validation using cryptographic signatures.
 Database persistence with MongoDB to emulate production API behavior.  
 
+---
 Tech Stack
 
 **FastAPI** — Framework for high-performance, async API development.  
@@ -31,6 +34,7 @@ Tech Stack
 **Passlib & bcrypt** — For secure password hashing.  
 **Uvicorn** — ASGI server for local and production deployment.  
 
+---
 Authentication Overview
 
 The API uses three authentication methods depending on the endpoint type:
@@ -41,12 +45,13 @@ The API uses three authentication methods depending on the endpoint type:
 | **JWT Bearer Token** | `Authorization: Bearer <JWT_TOKEN>` | Grants access to protected, admin, and system operations.                           |
 | **API Key**          | `X-API-Key: <USER_API_KEY>`         | Used for payment-related endpoints and webhook verification.                        |
 
+---
+All requests should be made to:  
 
-Live API
+- Live (Base URL): https://mock-payment-api-v7a7.onrender.com  
+- Development (Local server): http://127.0.0.1:8000
 
-Base URL: https://mock-payment-api-v7a7.onrender.com
-Development: http://127.0.0.1:8000
-
+---
 Key Endpoints
 
 | Method   | Endpoint                           | Description                       | Auth Required       |
@@ -63,8 +68,9 @@ Key Endpoints
 | `DELETE` | `/api/v1/{resource}/{resource_id}` | Delete user or transaction        | JWT                 |
 | `GET`    | `/api/v1/payments/query`           | Filter and sort transactions      | API Key + JWT       |
 
-See full API usage examples in the api_documentation.md file.
+See full API usage examples in the [api_documentation.md](https://github.com/m-peckus/python_server/blob/main/api_documentation.md) file.
 
+---
 Example Use Case
 
 A merchant registers and receives an API key and webhook secret.
