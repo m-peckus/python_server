@@ -43,7 +43,7 @@ The API uses three authentication methods depending on the endpoint type:
 ---
 All requests should be made to:  
 
-- Live (Base URL): https://mock-payment-api-v7a7.onrender.com  
+- Live (BaseURL): https://mock-payment-api-v7a7.onrender.com  
 - Development (Local server): http://127.0.0.1:8000
 
 ---
@@ -68,7 +68,7 @@ See full API usage examples in the [api_documentation.md](https://github.com/m-p
 ---
 **Example Use Case**  
 
-A merchant registers and receives an API key and webhook secret.
+A client registers and receives an API key and webhook secret.
 They then use the API to:
 Authenticate with a password to obtain a JWT.
 Send payments using the POST /api/v1/payments/charge endpoint.
@@ -77,7 +77,8 @@ Manage user roles or transactions through JWT-protected routes.
 This setup closely replicates real-world payment workflows between clients and payment gateways.  
 
 **Usage Notes:**  
-1. Clone the repository.   
+Call the BaseURL and all endpoints directly (project is live), or clone the repository for local use.  
+1. To clone the repository.   
  ```
  bash
 
@@ -114,7 +115,6 @@ http://127.0.0.1:8000
 **Learning Outcomes**  
 
 By completing this project, you’ll understand:  
-
 The flow of authentication and authorization in REST APIs.  
 Secure credential management using JWT and API keys.  
 Structuring modular, production-style FastAPI projects.  
