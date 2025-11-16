@@ -4,7 +4,7 @@
 The Mock **Payment Gateway API** is a learning-focused project that replicates core functionalities of real-world payment service provider (PSP) systems. It was created to understand and demonstrate:
 - How real-world PSP APIs structure endpoints and manage data flow. 
 - How secure, role-based authorization and authentication  is implemented  using passwords, JWTs, and API keys.  
-- How webhook validation is implemented using cryptographic signatures.  
+- How cryptographic signatures are used to validate incoming webhooks.  
 - How a real database - Mongo DB in this project - stores authentication credentials, authorization data and transaction records to emulate PSP API behavior.  
 
 While it mirrors the structure and behavior of production payment APIs, credit card handling and tokenization are intentionally excluded to simplify implementation and focus on core logic such as authentication, authorization, and payment processing.  
@@ -79,25 +79,36 @@ This setup closely replicates real-world payment workflows between clients and p
 **Usage Notes:**  
 1. Clone the repository.   
  ```
+ bash
+
 git clone https://github.com/m-peckus/python_server  
 cd python_server 
 ```
-2. Create a virtual environment:  
+2. Create a virtual environment: 
+```
+bash 
 
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv venv  
+source venv/bin/activate  
+```
 
 3. Install dependencies:  
+```
+bash 
 
 pip install -r requirements.txt  
+```
 
 4. Run the server:  
-
+```
+bash
 uvicorn test_main:app --reload  
+```
 
 5. Access the API locally:  
-
+```
 http://127.0.0.1:8000  
+```
 
 
 **Learning Outcomes**  
@@ -116,7 +127,9 @@ Implement transaction reconciliation and refunds.
 Integrate rate limiting and request logging.  
 Extend webhook event types for more realistic simulation.  
 
-Author  
+**Project Summary**  
+  
+Educational project for mastering REST API development with FastAPI and MongoDB. It is open-source under the MIT License, and you are welcome to modify the implementation or integrate your own database systems.    
 
-Martynas Peckus  
-Educational project for mastering REST API development with FastAPI and MongoDB.  
+Author  
+Developed by m-peckus — learning back-end development one project at a time.
