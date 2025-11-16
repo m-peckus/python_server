@@ -117,14 +117,14 @@ http://127.0.0.1:8000
 By completing this project, you’ll understand:  
 The flow of authentication and authorization in REST APIs.  
 Secure credential management using JWT and API keys.  
-Structuring modular, production-style FastAPI projects.  
+How to structure modular, production-style FastAPI projects.  
 How real payment APIs handle transactions, webhooks, and user roles.  
 
 **Future Improvements**  
 
 Add support for tokenized payment methods.  
 Implement transaction reconciliation and refunds.  
-Integrate rate limiting and request logging.  
+Integrate rate limiting and request logging for API security and monitoring purposes.  
 Extend webhook event types for more realistic simulation.  
 
 **Project Summary**  
