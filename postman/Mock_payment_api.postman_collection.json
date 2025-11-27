@@ -311,7 +311,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"Falcon Quantum01\",\r\n    \"email\": \"falcons@quantum01.com\",\r\n    \"password\": \"Password123!#\"\r\n}",
+									"raw": "{\r\n    \"name\": \"Falcon Quantum02\",\r\n    \"email\": \"falcons@quantum02.com\",\r\n    \"password\": \"Password123!#\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -673,7 +673,7 @@
 					]
 				},
 				{
-					"name": "Negative tests User Management & Authentication",
+					"name": "Negative tests Register New User",
 					"item": [
 						{
 							"name": "Register New User Missing Email",
@@ -914,6 +914,82 @@
 										"v1",
 										"users",
 										"register"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Negative tests User Login (Get user JWT Token)",
+					"item": [
+						{
+							"name": "User Login (Get user JWT Token) Incorrect Password",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// fetche response body as JSON object\r",
+											"const responseJSON = pm.response.json();\r",
+											"\r",
+											"// 1. Test the response is a JSON object\r",
+											"pm.test(\"Response is JSON\", () => {\r",
+											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+											"      .to.include(\"application/json\");\r",
+											"});\r",
+											"\r",
+											"// 2. Test the response message is not empty\r",
+											" pm.test(\"Error message is not empty\", () => {\r",
+											"    pm.expect(responseJSON.detail.length).to.be.above(0);\r",
+											"});\r",
+											"\r",
+											"\r",
+											"// 3. Test response status code\r",
+											"pm.test(\"Status code is 401 Unauthorized\", () => { \r",
+											"    pm.expect(pm.response.code).to.eql(401);\r",
+											"});\r",
+											"\r",
+											"// 4. Exact error message\r",
+											"pm.test(\"Error message is 'Invalid email or password.'\", () => { \r",
+											"    pm.expect(responseJSON.detail).to.eql(\"Invalid email or password.\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"{{test_user_email}}\",\r\n    \"password\": \"passwordfalcon\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/users/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"login"
 									]
 								}
 							},
