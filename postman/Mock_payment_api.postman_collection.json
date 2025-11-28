@@ -4,7 +4,7 @@
 		"name": "Mock_payment_api",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "22804049",
-		"_collection_link": "https://blue-firefly-918739.postman.co/workspace/e48ffb62-36a5-4ad7-a8a9-b8968bc04b96/collection/22804049-da5584ee-cb51-450e-8fbf-6fee94edc067?action=share&source=collection_link&creator=22804049"
+		"_collection_link": "https://blue-firefly-918739.postman.co/workspace/Live-Payment-API~e48ffb62-36a5-4ad7-a8a9-b8968bc04b96/collection/22804049-da5584ee-cb51-450e-8fbf-6fee94edc067?action=share&source=collection_link&creator=22804049"
 	},
 	"item": [
 		{
@@ -676,7 +676,7 @@
 					"name": "Negative tests Register New User",
 					"item": [
 						{
-							"name": "Register New User Missing Email",
+							"name": "Missing Email Register New User",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -764,7 +764,7 @@
 							"response": []
 						},
 						{
-							"name": "Register New User Missing Name",
+							"name": "Missing Name Register New User",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -842,7 +842,7 @@
 							"response": []
 						},
 						{
-							"name": "Register New User Missing Password",
+							"name": "Missing Password Register New User",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -925,7 +925,7 @@
 					"name": "Negative tests User Login (Get user JWT Token)",
 					"item": [
 						{
-							"name": "User Login (Get user JWT Token) Incorrect Password",
+							"name": "Incorrect Password User Login (Get user JWT Token)",
 							"event": [
 								{
 									"listen": "test",
@@ -994,8 +994,191 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "Missing password User Login (Get user JWT Token)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// fetche response body as JSON object\r",
+											"const responseJSON = pm.response.json();\r",
+											"console.log('Response body = ', responseJSON.detail);\r",
+											"\r",
+											"// Extract the first error object (because detail is an array)\r",
+											"const err = pm.response.json().detail[0];\r",
+											"console.log('Error = ', err);\r",
+											"\r",
+											"// 1. Ensure API returns JSON\r",
+											"pm.test(\"Response is JSON\", () => {\r",
+											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+											"      .to.include(\"application/json\");\r",
+											"});\r",
+											"\r",
+											"// 2.  Error message must not be empty\r",
+											" pm.test(\"Error message is not empty\", () => {\r",
+											"    pm.expect(responseJSON.detail.length).to.be.above(0);\r",
+											"});\r",
+											"\r",
+											"\r",
+											"// 3. Validate HTTP status code\r",
+											"pm.test(\"Status code is 422 Unprocessable Entity\", () => { \r",
+											"    pm.expect(pm.response.code).to.eql(422);\r",
+											"});\r",
+											"\r",
+											"// 4. Test response body contains 'detail' array\r",
+											"pm.test(\"Response contains a non-empty 'detail' array\", () => {\r",
+											"    pm.expect(responseJSON).to.have.property(\"detail\");\r",
+											"    pm.expect(responseJSON.detail).to.be.an(\"array\").that.is.not.empty;\r",
+											"});\r",
+											"\r",
+											"// 5. Check that error belongs to the 'password' field\r",
+											"pm.test(\"Error loc identifies 'password' field\", () => {\r",
+											"    pm.expect(err.loc).to.include(\"password\")\r",
+											"    });\r",
+											"\r",
+											"// 6. Check that error type is 'string_too_short'\r",
+											"pm.test(\"Error type is 'string_too_short'\", () => {\r",
+											"    pm.expect(err.type).to.eql(\"string_too_short\");\r",
+											"});\r",
+											"\r",
+											"\r",
+											"\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"{{test_user_email}}\",\r\n    \"password\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/users/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"login"
+									]
+								}
+							},
+							"response": []
 						}
 					]
+				},
+				{
+					"name": "Negative Tests Admin Login",
+					"item": [
+						{
+							"name": "Missing Email Admin Login (Get admin JWT Token)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// parse response body\r",
+											"const responseJson = pm.response.json();\r",
+											"// Extract the first error object (because detail is an array)\r",
+											"const error = pm.response.json().detail[0];\r",
+											"console.log('Error = ', error);\r",
+											"\r",
+											"// 1. Ensure API returns JSON\r",
+											"pm.test(\"Response is JSON\", () => {\r",
+											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+											"      .to.include(\"application/json\");\r",
+											"});\r",
+											"\r",
+											"// 2.  Error message must not be empty\r",
+											" pm.test(\"Error message is not empty\", () => {\r",
+											"    pm.expect(responseJson.detail.length).to.be.above(0);\r",
+											"});\r",
+											"\r",
+											"// 3. Check Status Code\r",
+											"pm.test(\"Status code is 422 Unprocessable Entity\", () => {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"// 4. Check response structure has \"detail\"\r",
+											"pm.test(\"Response contains 'detail' array\", () => {\r",
+											"    pm.expect(responseJson).to.have.property(\"detail\");\r",
+											"    pm.expect(responseJson.detail).to.be.an(\"array\").that.is.not.empty;\r",
+											"});\r",
+											"\r",
+											"// 5. Check that the error refers to the 'email' field\r",
+											"pm.test(\"Validation error refers to 'email' field\", () => {\r",
+											"    pm.expect(error.loc).to.include(\"email\");\r",
+											"});\r",
+											"\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"\",\r\n    // find system admin password in the project's .env file\r\n    \"password\": \"{{admin_password}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/users/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"login"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Negative Tests Update User Role",
+					"item": []
 				}
 			]
 		},
