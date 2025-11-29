@@ -343,10 +343,28 @@ async def login_user(
 # JWT token verification dependency
 #=========================================================================
 
+# found bug in here  with the negative Postman test
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/login")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/login")
+def extract_token(request: Request) -> str:
+    """Extract Bearer token manually (more reliable than OAuth2PasswordBearer)."""
+    auth_header = request.headers.get("Authorization")
 
-def verify_jwt_token(token: str = Depends(oauth2_scheme)):
+    if not auth_header:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authorization header missing."
+        )
+
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authorization header format."
+        )
+
+    return auth_header.split(" ")[1]
+
+def verify_jwt_token(token: str = Depends(extract_token)):
     """Decode and verify the JWT token."""
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
