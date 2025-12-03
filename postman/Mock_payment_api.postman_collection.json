@@ -1866,7 +1866,212 @@
 				},
 				{
 					"name": "Negative Tests System Admin: Access Dashboard",
-					"item": []
+					"item": [
+						{
+							"name": "Non system_admin token : Access Dashboard",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();\r",
+											"\r",
+											"//Test 1. Check if the response status code is 403\r",
+											"pm.test(\"Status code is 403 Forbidden\", function () { \r",
+											"    pm.response.to.have.status(403);\r",
+											"});\r",
+											"\r",
+											"//Test 2. Ensure API returns JSON\r",
+											"pm.test(\"Response is JSON\", () => {\r",
+											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+											"      .to.include(\"application/json\");\r",
+											"});\r",
+											"\r",
+											"//Test 3. Ensure access to the admin dashboard denied\r",
+											"pm.test(\"Incorrect user role, access to the admin dashboard denied\", () => {\r",
+											"    pm.expect(responseJson).to.have.property(\"detail\");\r",
+											"    pm.expect(responseJson.detail).to.eql(\"Access denied. Allowed roles: ('admin', 'system_admin')\");\r",
+											"});\r",
+											"\r",
+											"\r",
+											"//Test 4. Ensure sensitive fields are NOT returned\r",
+											"pm.test(\"Response does not leak userId, role\", () => {\r",
+											"    pm.expect(responseJson).to.not.have.property(\"userId\");\r",
+											"    pm.expect(responseJson).to.not.have.property(\"role\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{test_user_jwt}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/admin/dashboard",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"dashboard"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Token not provided: Access Admin Dashboard",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();\r",
+											"\r",
+											"//Test 1. Check if the response status code is 403\r",
+											"pm.test(\"Status code is 401 Unauthorized\", function () { \r",
+											"    pm.response.to.have.status(401);\r",
+											"});\r",
+											"\r",
+											"//Test 2. Ensure API returns JSON\r",
+											"pm.test(\"Response is JSON\", () => {\r",
+											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+											"      .to.include(\"application/json\");\r",
+											"});\r",
+											"\r",
+											"//Test 3. Ensure access to the admin dashboard denied\r",
+											"pm.test(\"Authorization header missing\", () => {\r",
+											"    pm.expect(responseJson).to.have.property(\"detail\");\r",
+											"    pm.expect(responseJson.detail).to.be.a(\"string\");\r",
+											"    pm.expect(responseJson.detail).to.eql(\"Authorization header missing.\");\r",
+											"});\r",
+											"\r",
+											"\r",
+											"//Test 4. Ensure sensitive fields are NOT returned\r",
+											"pm.test(\"Response does not leak userId, role\", () => {\r",
+											"    pm.expect(responseJson).to.not.have.property(\"userId\");\r",
+											"    pm.expect(responseJson).to.not.have.property(\"role\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/admin/dashboard",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"dashboard"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Invalid URL : Access Admin Dashboard",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();\r",
+											"console.log(responseJson);\r",
+											"\r",
+											"//Test 1. Check if the response status code is 404\r",
+											"pm.test(\"Status code is 404 Not Found\", function () { \r",
+											"    pm.response.to.have.status(404);\r",
+											"});\r",
+											"\r",
+											"//Test 2. Ensure API returns JSON\r",
+											"pm.test(\"Response is JSON\", () => {\r",
+											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+											"      .to.include(\"application/json\");\r",
+											"});\r",
+											"\r",
+											"//Test 3. Ensure response contains the correct error message.\r",
+											"pm.test(\"404 Not Found error returned for invalid URL\", () => {\r",
+											"    pm.expect(responseJson).to.have.property(\"detail\");\r",
+											"    pm.expect(responseJson.detail).to.be.a(\"string\");\r",
+											"    pm.expect(responseJson.detail).to.eql(\"Not Found\");\r",
+											"});\r",
+											"\r",
+											"\r",
+											"//Test 4. Ensure sensitive fields are NOT returned\r",
+											"pm.test(\"Response does not leak userId, role\", () => {\r",
+											"    pm.expect(responseJson).to.not.have.property(\"userId\");\r",
+											"    pm.expect(responseJson).to.not.have.property(\"role\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admin_jwt}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/admin/dashboard_wrong/path",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"dashboard_wrong",
+										"path"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		},
