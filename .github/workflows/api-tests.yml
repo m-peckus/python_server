@@ -1,0 +1,50 @@
+name: API Tests CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: ${{ secrets.BASE_URL }}
+      TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+      TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      TEST_USER_API_KEY: ${{ secrets.TEST_USER_API_KEY }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install Newman
+        run: npm install -g newman
+
+      - name: Run API tests via Newman
+        run: |
+          echo "Running Postman collection with environment variables..."
+          newman run ./postman_collection.json \
+            --env-var "baseUrl=$BASE_URL" \
+            --env-var "test_user_email=$TEST_USER_EMAIL" \
+            --env-var "test_user_password=$TEST_USER_PASSWORD" \
+            --env-var "admin_email=$ADMIN_EMAIL" \
+            --env-var "admin_password=$ADMIN_PASSWORD" \
+            --env-var "test_user_api_key=$TEST_USER_API_KEY" \
+            --reporters cli,junit \
+            --reporter-junit-export results.xml
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: api-test-results
+          path: results.xml
