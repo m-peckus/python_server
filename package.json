@@ -1,0 +1,10 @@
+{
+  "name": "postman-tests",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "newman run postman/collection.json -e postman/ci_environment.json"
+  },
+  "dependencies": {
+    "newman": "^6.0.0"
+  }
+}
