@@ -33,7 +33,8 @@ jobs:
       - name: Run API tests via Newman
         run: |
           echo "Running Postman collection with environment variables..."
-          newman run ./postman_collection.json \
+          newman run ./Mock_payment_api.postman_collection.json \
+
             --env-var "baseUrl=$BASE_URL" \
             --env-var "test_user_email=$TEST_USER_EMAIL" \
             --env-var "test_user_password=$TEST_USER_PASSWORD" \
