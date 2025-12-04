@@ -1,5 +1,4 @@
 name: API Tests CI/CD
-
 on:
   push:
     branches:
@@ -11,42 +10,58 @@ on:
 jobs:
   api-tests:
     runs-on: ubuntu-latest
+    
     env:
       BASE_URL: ${{ secrets.BASE_URL }}
       TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
       TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      TEST_USER_NAME: ${{ secrets.TEST_USER_NAME }}
+      TEST_USER_ROLE: ${{ secrets.TEST_USER_ROLE }}
+      TEST_USER_ID: ${{ secrets.TEST_USER_ID }}
+      TEST_USER_JWT_TOKEN_TYPE: ${{ secrets.TEST_USER_JWT_TOKEN_TYPE }}
+      TEST_USER_API_KEY: ${{ secrets.TEST_USER_API_KEY }}
+      TEST_USER_WEBHOOK_SECRET: ${{ secrets.TEST_USER_WEBHOOK_SECRET }}
       ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-      TEST_USER_API_KEY: ${{ secrets.TEST_USER_API_KEY }}
+      ADMIN_JWT: ${{ secrets.ADMIN_JWT }}
+      TRANSACTION_ID: ${{ secrets.TRANSACTION_ID }}
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
+        
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-
+          
       - name: Install Newman
         run: npm install -g newman
-
+        
       - name: Run API tests via Newman
         run: |
           echo "Running Postman collection with environment variables..."
           newman run ./postman/Mock_payment_api.postman_collection.json \
-
+            -e ./postman/postman_environment_ci.json \
             --env-var "baseUrl=$BASE_URL" \
             --env-var "test_user_email=$TEST_USER_EMAIL" \
             --env-var "test_user_password=$TEST_USER_PASSWORD" \
+            --env-var "test_user_name=$TEST_USER_NAME" \
+            --env-var "test_user_role=$TEST_USER_ROLE" \
+            --env-var "test_user_id=$TEST_USER_ID" \
+            --env-var "test_user_jwt_token_type=$TEST_USER_JWT_TOKEN_TYPE" \
+            --env-var "test_user_api_key=$TEST_USER_API_KEY" \
+            --env-var "test_user_webhook_secret=$TEST_USER_WEBHOOK_SECRET" \
             --env-var "admin_email=$ADMIN_EMAIL" \
             --env-var "admin_password=$ADMIN_PASSWORD" \
-            --env-var "test_user_api_key=$TEST_USER_API_KEY" \
+            --env-var "admin_jwt=$ADMIN_JWT" \
+            --env-var "transaction_id=$TRANSACTION_ID" \
             --reporters cli,junit \
             --reporter-junit-export results.xml
-
+            
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: api-test-results
           path: results.xml
-  
