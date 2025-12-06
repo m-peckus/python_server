@@ -54,9 +54,7 @@ jobs:
             --env-var "baseUrl=$BASE_URL" \
             --env-var "admin_email=$ADMIN_EMAIL" \
             --env-var "admin_password=$ADMIN_PASSWORD" \
-            --env-var "test_user_email=$TEST_EMAIL" \
             --env-var "test_user_password=$TEST_PASSWORD" \
-            --env-var "test_user_name=$TEST_NAME" \
             --reporters cli,junit \
             --reporter-junit-export results.xml \
             --color on
