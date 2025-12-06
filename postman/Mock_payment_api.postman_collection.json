@@ -28,7 +28,7 @@
 											"//pm.test(\"Response time is less than 500ms\", () => {\r",
 											"  //pm.expect(pm.response.responseTime).to.be.below(500);\r",
 											"//});\r",
-											"// ABOVE TEST COMMENTED OUT FOR NOW, SERVICE RESPONSE TIME IS OFTEN BELLOW THE TEST PARAMETER\r",
+											"// THE ABOVE TEST IS COMMENTED OUT, THE SERVICE RESPONSE TIME IS OFTEN BELLOW THE TEST PARAMETER (Render free tier service)\r",
 											"\r",
 											"// 3. Check the response body contains the expected properties\r",
 											"pm.test(\"The response has all properties\", () => {\r",
@@ -229,13 +229,24 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
+											"// Declare variable outside the if block\r",
+											"let randomEmail;\r",
 											"if(pm.request.body && pm.request.body.raw){\r",
 											"const req = JSON.parse(pm.request.body.raw);\r",
+											"\r",
+											"// Generate random email and store it BEFORE the request\r",
+											"const randomEmail = pm.variables.replaceIn('{{$randomEmail}}');\r",
+											"\r",
 											"// if request body True set environment variables\r",
 											"pm.environment.set(\"test_user_name\", req.name);\r",
-											"pm.environment.set(\"test_user_email\", req.email);\r",
+											"pm.environment.set(\"test_user_email\", randomEmail);\r",
 											"pm.environment.set(\"test_user_password\", req.password);\r",
-											"};"
+											"};\r",
+											"\r",
+											"console.log(\"Generated email:\", randomEmail);\r",
+											"\r",
+											"\r",
+											""
 										],
 										"type": "text/javascript",
 										"packages": {},
@@ -312,7 +323,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"Falcon Quantum02\",\r\n    \"email\": \"falcons@quantum02.com\",\r\n    \"password\": \"Password123!#\"\r\n}",
+									"raw": "{\r\n    \"name\": \"Falcon Quantum02\",\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"password\": \"Password123!#\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
