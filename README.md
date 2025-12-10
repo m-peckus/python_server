@@ -1,6 +1,8 @@
 # Mock Payment Gateway API
 **Educational Project — Realistic Payment Flow Simulation**  
 
+![App Demo](mock_payment_api.gif)
+
 The Mock **Payment Gateway API** is a learning-focused project that replicates core functionalities of real-world payment service provider (PSP) systems. It was created to understand and demonstrate:
 - How real-world PSP APIs structure endpoints and manage data flow. 
 - How secure, role-based authorization and authentication  is implemented  using passwords, JWTs, and API keys.  
