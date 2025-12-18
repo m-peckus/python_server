@@ -229,23 +229,24 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"// Declare variable outside the if block\r",
-											"let randomEmail;\r",
-											"if(pm.request.body && pm.request.body.raw){\r",
-											"const req = JSON.parse(pm.request.body.raw);\r",
+											"if (pm.request.body && pm.request.body.raw) {\r",
+											"    const req = JSON.parse(pm.request.body.raw);\r",
 											"\r",
-											"// Generate random email and store it BEFORE the request\r",
-											"const randomEmail = pm.variables.replaceIn('{{$randomEmail}}');\r",
+											"    const randomEmail = pm.variables.replaceIn('{{$randomEmail}}');\r",
+											"    const password = \"Password123!#\";\r",
 											"\r",
-											"// if request body True set environment variables\r",
-											"pm.environment.set(\"test_user_name\", req.name);\r",
-											"pm.environment.set(\"test_user_email\", randomEmail);\r",
-											"pm.environment.set(\"test_user_password\", req.password);\r",
-											"};\r",
+											"    pm.environment.set(\"test_user_email\", randomEmail);\r",
+											"    pm.environment.set(\"test_user_password\", password);\r",
 											"\r",
-											"console.log(\"Generated email:\", randomEmail);\r",
+											"    // Update request body dynamically\r",
+											"    req.email = randomEmail;\r",
+											"    req.password = password;\r",
 											"\r",
+											"    pm.request.body.raw = JSON.stringify(req);\r",
+											"}\r",
 											"\r",
+											"console.log(\"Email used:\", pm.environment.get(\"test_user_email\"));\r",
+											"console.log(\"Password used:\", pm.environment.get(\"test_user_password\"));\r",
 											""
 										],
 										"type": "text/javascript",
@@ -323,7 +324,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"Falcon Quantum02\",\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"password\": \"Password123!#\"\r\n}",
+									"raw": "{\r\n    \"name\": \"Falcon Project\",\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"password\": \"Password123!#\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -358,6 +359,7 @@
 											"});\r",
 											"// parse response body\r",
 											"const responseJson = pm.response.json();\r",
+											"console.log('Response body :', responseJson);\r",
 											"\r",
 											"// 2. Verify the response body contains expected properties\r",
 											"pm.test(\"Response body contains expected properties\", () => {\r",
@@ -378,12 +380,12 @@
 											"\r",
 											"// 4. Generate JWT token for the test user\r",
 											"pm.test(\"Test user JWT token is generated\", () => {\r",
+											"    pm.expect(responseJson).to.have.property(\"access_token\");\r",
+											"    pm.expect(responseJson.access_token).to.not.be.empty;\r",
 											"\r",
 											"    pm.environment.set(\"test_user_jwt\", responseJson.access_token);\r",
-											"    pm.environment.set(\"test_user_jwt_token_type\", responseJson.token_type);\r",
-											"    pm.environment.set(\"test_user_id\", responseJson.userId);\r",
-											"    pm.environment.set(\"test_user_role\", responseJson.role);\r",
-											"});"
+											"});\r",
+											""
 										],
 										"type": "text/javascript",
 										"packages": {},
@@ -402,7 +404,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"{{test_user_email}}\",\r\n    \"password\": \"{{test_user_password}}\"\r\n}",
+									"raw": "{\r\n    \"email\": \"{{test_user_email}}\",\r\n     \"password\": \"{{test_user_password}}\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
