@@ -359,8 +359,7 @@
 											"});\r",
 											"// parse response body\r",
 											"const responseJson = pm.response.json();\r",
-											"console.log('Response body :', responseJson);\r",
-											"\r",
+											"console.log(responseJson)\r",
 											"// 2. Verify the response body contains expected properties\r",
 											"pm.test(\"Response body contains expected properties\", () => {\r",
 											"    pm.expect(responseJson).to.have.property(\"access_token\");\r",
@@ -1368,7 +1367,7 @@
 							"response": []
 						},
 						{
-							"name": "Invalid User Role Admin: Update User Role Copy",
+							"name": "Invalid User Role Admin: Update User Role",
 							"event": [
 								{
 									"listen": "test",
@@ -1402,8 +1401,6 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"\r",
-											"\r",
 											""
 										],
 										"type": "text/javascript",
@@ -1508,8 +1505,6 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"\r",
-											"\r",
 											""
 										],
 										"type": "text/javascript",
