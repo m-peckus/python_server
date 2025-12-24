@@ -1539,7 +1539,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"new_role\": \"captain\"\r\n    \r\n}",
+									"raw": "{\r\n    \"new_role\": \"admin\"\r\n    \r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
