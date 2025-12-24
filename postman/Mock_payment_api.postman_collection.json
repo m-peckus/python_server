@@ -1524,7 +1524,7 @@
 									"bearer": [
 										{
 											"key": "token",
-											"value": "{{test_user_jwt}}",
+											"value": "\"this-is-not-a-valid-jwt-token-at-all\"",
 											"type": "string"
 										}
 									]
