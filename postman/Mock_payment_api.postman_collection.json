@@ -1887,8 +1887,8 @@
 											"console.log(responseJson.detail);\r",
 											"\r",
 											"//Test 1. Check if the response status code is 401\r",
-											"pm.test(\"Status code is 401 for unauthorized access\", () => { \r",
-											"    pm.response.to.have.status(401);\r",
+											"pm.test(\"Status code is 403 for unauthorized access\", () => { \r",
+											"    pm.response.to.have.status(403);\r",
 											"});\r",
 											"\r",
 											"//Test 2. Ensure API returns JSON\r",
@@ -1900,7 +1900,7 @@
 											"//Test 3. Ensure access to the admin dashboard denied\r",
 											"pm.test(\"Non system_admin token, access to the admin dashboard denied\", () => {\r",
 											"    pm.expect(responseJson).to.have.property(\"detail\");\r",
-											"    pm.expect(responseJson.detail).to.equal(\"Invalid or expired token.\");\r",
+											"    pm.expect(responseJson.detail).to.equal(\"Access denied. Allowed roles: ('admin', 'system_admin')\");\r",
 											"});\r",
 											"\r",
 											"\r",
@@ -1911,6 +1911,19 @@
 											"});\r",
 											"\r",
 											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// Add this to your Postman pre-request or test script:\r",
+											"console.log(\"Auth Header:\", pm.request.headers.get(\"Authorization\"));\r",
+											"console.log(\"Request URL:\", pm.request.url.toString());"
 										],
 										"type": "text/javascript",
 										"packages": {},
@@ -1930,7 +1943,14 @@
 									]
 								},
 								"method": "GET",
-								"header": [],
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{test_user_jwt}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
 								"url": {
 									"raw": "{{baseUrl}}/api/v1/admin/dashboard",
 									"host": [
