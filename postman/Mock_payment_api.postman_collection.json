@@ -1886,6 +1886,15 @@
 											"const responseJson = pm.response.json();\r",
 											"console.log(responseJson.detail);\r",
 											"\r",
+											"/**\r",
+											" * Negative Test: Non-admin attempting to access system admin dashboard\r",
+											" * \r",
+											" * Prerequisites:\r",
+											" * - {{test_user_jwt}} must be populated (run token generation request first)\r",
+											" * \r",
+											" * Expected: 403 Forbidden - Access denied for insufficient permissions\r",
+											" */\r",
+											"\r",
 											"//Test 1. Check if the response status code is 401\r",
 											"pm.test(\"Status code is 403 for unauthorized access\", () => { \r",
 											"    pm.response.to.have.status(403);\r",
@@ -1962,7 +1971,8 @@
 										"admin",
 										"dashboard"
 									]
-								}
+								},
+								"description": "⚠️ Prerequisites:  \nThis test requires a valid non-admin JWT token.  \nRun the \"User Login(Get User JWT)\" request first to populate the {{test_user_jwt}} variable.\n\nExpected Behavior:\n\n- Status: 403 Forbidden\n    \n- Message: Non system_admin token, access to the admin dashboard denied"
 							},
 							"response": []
 						},
@@ -1976,14 +1986,14 @@
 											"const responseJson = pm.response.json();\r",
 											"\r",
 											"//Test 1. Check if the response status code is 403\r",
-											"pm.test(\"Status code is 401 Unauthorized\", function () { \r",
+											"pm.test(\"Status code is 401 Unauthorized\", () => {\r",
 											"    pm.response.to.have.status(401);\r",
 											"});\r",
 											"\r",
 											"//Test 2. Ensure API returns JSON\r",
 											"pm.test(\"Response is JSON\", () => {\r",
 											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
-											"      .to.include(\"application/json\");\r",
+											"        .to.include(\"application/json\");\r",
 											"});\r",
 											"\r",
 											"//Test 3. Ensure access to the admin dashboard denied\r",
