@@ -2129,7 +2129,35 @@
 									"script": {
 										"exec": [
 											"const responseJson = pm.response.json();\r",
-											"console.log(responseJson);"
+											"console.log(responseJson);\r",
+											"\r",
+											"// Response code is 201\r",
+											"pm.test(\"Response code is 201 Created\", () => {\r",
+											"    pm.response.to.have.status(201);\r",
+											"})\r",
+											"\r",
+											"// Response body contains the expected properties\r",
+											"pm.test(\"Response body contains the expected properties\", () => {\r",
+											"    pm.expect(responseJson).to.have.property(\"id\");\r",
+											"    pm.expect(responseJson).to.have.property(\"customerName\");\r",
+											"    pm.expect(responseJson).to.have.property(\"amount\");\r",
+											"    pm.expect(responseJson).to.have.property(\"currency\");\r",
+											"    pm.expect(responseJson).to.have.property(\"status\");\r",
+											"    pm.expect(responseJson).to.have.property(\"created\");\r",
+											"\r",
+											"})\r",
+											"\r",
+											"// Response body contains the expected values\r",
+											"pm.test(\"Response body contains the expected values\", () => {\r",
+											"    pm.expect(responseJson.id).not.to.be.empty;\r",
+											"    pm.expect(responseJson.customerName).not.to.be.empty;\r",
+											"    pm.expect(responseJson.amount).to.be.a(\"number\");\r",
+											"    pm.expect(responseJson.currency).not.to.be.empty;\r",
+											"    pm.expect(responseJson.status).to.be.oneOf([\"pending\", \"success\", \"failed\"]);\r",
+											"    pm.expect(responseJson.created).not.to.be.empty; // field is not empty\r",
+											"    pm.expect(responseJson.created).to.match(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z$/);// field matches ISO 8601 format\r",
+											"})\r",
+											""
 										],
 										"type": "text/javascript",
 										"packages": {},
@@ -2151,7 +2179,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"customerName\": \"Falcon Quantum02\",\r\n    \"paymentAmount\": 10032.00,\r\n    \"currency\": \"USD\",\r\n    \"details\": \"Corporate Payment Finum Finance\",\r\n    \"webhookUrl\": \"https://webhook-test.com/cc1fc8fd92f4c394a4fdf52eb5206480\"\r\n}",
+									"raw": "{\r\n    \"customerName\": \"Falcon Quantum Invest\",\r\n    \"paymentAmount\": 10033.00,\r\n    \"currency\": \"USD\",\r\n    \"details\": \"Corporate Payment Finum Finance\",\r\n    \"webhookUrl\": \"https://webhook-test.com/23697bc2741aa52a07580c9a76ca5cf5\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
