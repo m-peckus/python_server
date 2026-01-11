@@ -2050,7 +2050,7 @@
 											"console.log(responseJson);\r",
 											"\r",
 											"//Test 1. Check if the response status code is 404\r",
-											"pm.test(\"Status code is 404 Not Found\", function () { \r",
+											"pm.test(\"Status code is 404 Not Found\", () => { \r",
 											"    pm.response.to.have.status(404);\r",
 											"});\r",
 											"\r",
