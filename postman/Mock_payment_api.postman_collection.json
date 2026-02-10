@@ -1,2342 +1,2375 @@
 {
-	"info": {
-		"_postman_id": "da5584ee-cb51-450e-8fbf-6fee94edc067",
-		"name": "Mock_payment_api",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "22804049",
-		"_collection_link": "https://blue-firefly-918739.postman.co/workspace/Live-Payment-API~e48ffb62-36a5-4ad7-a8a9-b8968bc04b96/collection/22804049-da5584ee-cb51-450e-8fbf-6fee94edc067?action=share&source=collection_link&creator=22804049"
-	},
-	"item": [
-		{
-			"name": "Status & Health Check",
-			"item": [
-				{
-					"name": "Positive Tests Check API Status",
-					"item": [
-						{
-							"name": "Check API Status",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"// 1. Check Status Code\r",
-											"pm.test(\"Status code is 200\", () => {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											" // 2. Check response time is less than 500ms\r",
-											"//pm.test(\"Response time is less than 500ms\", () => {\r",
-											"  //pm.expect(pm.response.responseTime).to.be.below(500);\r",
-											"//});\r",
-											"// THE ABOVE TEST IS COMMENTED OUT, THE SERVICE RESPONSE TIME IS OFTEN BELLOW THE TEST PARAMETER (Render free tier service)\r",
-											"\r",
-											"// 3. Check the response body contains the expected properties\r",
-											"pm.test(\"The response has all properties\", () => {\r",
-											"    //parse the response JSON and test the properties\r",
-											"    const responseJson = pm.response.json();\r",
-											"    pm.expect(responseJson).to.have.property(\"status\");\r",
-											"    pm.expect(responseJson).to.have.property(\"service\");\r",
-											"    pm.expect(responseJson).to.have.property(\"version\");\r",
-											"    pm.expect(responseJson).to.have.property(\"message\");\r",
-											"    pm.expect(responseJson).to.have.property(\"metrics\");\r",
-											"\r",
-											"    pm.expect(responseJson.metrics).to.have.property(\"totalTransactions\")\r",
-											"    pm.expect(responseJson.metrics).to.have.property(\"lastRestart\");\r",
-											"});\r",
-											"\r",
-											"// 4. Check the response body data types\r",
-											"pm.test(\"The response body data types are correct\", () => {\r",
-											"    //parse the response JSON and test the data types of the properties \r",
-											"    const responseJson = pm.response.json();\r",
-											"    pm.expect(responseJson.status).to.be.a(\"string\");\r",
-											"    pm.expect(responseJson.service).to.be.a(\"string\");\r",
-											"    pm.expect(responseJson.version).to.be.a(\"string\");\r",
-											"    pm.expect(responseJson.message).to.be.a(\"string\");\r",
-											"    pm.expect(responseJson.metrics.totalTransactions).to.be.a(\"number\");\r",
-											"    pm.expect(responseJson.metrics.lastRestart).to.be.a(\"string\");\r",
-											"})\r",
-											"\r",
-											"pm.test(\"lastRestart is a valid ISO 8601 timestamp\", () => {\r",
-											"    const responseJson = pm.response.json();\r",
-											"\r",
-											"    // ISO 8601 with microseconds: 2025-11-10T13:01:12.615000Z\r",
-											"    const isoRegex = /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,6})?Z$/;\r",
-											"\r",
-											"    pm.expect(responseJson.metrics.lastRestart).to.match(isoRegex);\r",
-											"});\r",
-											"\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/status",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"status"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Negative Tests Check API Status",
-					"item": [
-						{
-							"name": "Check API Status Invalid URL Path",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"// 1. Check Status Code\r",
-											"pm.test(\"Status code is 404\", () => {\r",
-											"    pm.response.to.have.status(404);\r",
-											"});\r",
-											"\r",
-											"//parse the response JSON and test the properties\r",
-											"    const responseJson = pm.response.json();\r",
-											" // 2. Check response time is less than 500ms\r",
-											"pm.test(\"Response time is less than 500ms\", () => {\r",
-											"  pm.expect(pm.response.responseTime).to.be.below(500);\r",
-											"});\r",
-											"\r",
-											"// 3. Check the response body contains the expected properties\r",
-											"pm.test(\"The response has property 'detail' with a value 'string'\", () => {\r",
-											"    pm.expect(responseJson).to.have.property(\"detail\");\r",
-											"    pm.expect(responseJson.detail).to.be.a(\"string\");\r",
-											"});\r",
-											"\r",
-											"// 4. Check the response body message\r",
-											"pm.test(\"The response body data is correct\", () => {\r",
-											"    pm.expect(responseJson.detail).to.equal(\"Not Found\");\r",
-											"})\r",
-											"\r",
-											"\r",
-											"\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/statu$",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"statu$"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Check API Status Wrong HTTP Method",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"// 1. Check Status Code\r",
-											"pm.test(\"Status code is 405\", () => {\r",
-											"    pm.response.to.have.status(405);\r",
-											"});\r",
-											"\r",
-											"//parse the response JSON and test the properties\r",
-											"    const responseJson = pm.response.json();\r",
-											" // 2. Check response time is less than 500ms\r",
-											"pm.test(\"Response time is less than 500ms\", () => {\r",
-											"  pm.expect(pm.response.responseTime).to.be.below(500);\r",
-											"});\r",
-											"\r",
-											"// 3. Check the response body contains the expected properties\r",
-											"pm.test(\"The response has property 'detail' with a value 'string'\", () => {\r",
-											"    pm.expect(responseJson).to.have.property(\"detail\");\r",
-											"    pm.expect(responseJson.detail).to.be.a(\"string\");\r",
-											"});\r",
-											"\r",
-											"// 4. Check the response body message\r",
-											"pm.test(\"The response body data is correct\", () => {\r",
-											"    pm.expect(responseJson.detail).to.equal(\"Method Not Allowed\");\r",
-											"})\r",
-											"\r",
-											"\r",
-											"\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/status",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"status"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				}
-			]
-		},
-		{
-			"name": "User Management & Authentication",
-			"item": [
-				{
-					"name": "Positive Tests User Management & Authentication",
-					"item": [
-						{
-							"name": "Register New User",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											"if (pm.request.body && pm.request.body.raw) {\r",
-											"    const req = JSON.parse(pm.request.body.raw);\r",
-											"\r",
-											"    const randomEmail = pm.variables.replaceIn('{{$randomEmail}}');\r",
-											"    const password = \"Password123!#\";\r",
-											"\r",
-											"    pm.environment.set(\"test_user_email\", randomEmail);\r",
-											"    pm.environment.set(\"test_user_password\", password);\r",
-											"\r",
-											"    // Update request body dynamically\r",
-											"    req.email = randomEmail;\r",
-											"    req.password = password;\r",
-											"\r",
-											"    pm.request.body.raw = JSON.stringify(req);\r",
-											"}\r",
-											"\r",
-											"console.log(\"Email used:\", pm.environment.get(\"test_user_email\"));\r",
-											"console.log(\"Password used:\", pm.environment.get(\"test_user_password\"));\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"// 1. Check Status Code\r",
-											"pm.test(\"Status code is 201\", () => {\r",
-											"    pm.response.to.have.status(201);\r",
-											"});\r",
-											"    //parse the response JSON body\r",
-											"    const responseJson = pm.response.json();\r",
-											"    console.log(responseJson);\r",
-											"    \r",
-											"\r",
-											"// 2. Set environment variables for the test_user.\r",
-											"pm.test(\"Set environment variables test_user id, api key, webhook secret, and role.  \", () => {\r",
-											"    \r",
-											"pm.environment.set(\"test_user_id\", responseJson.userId);\r",
-											"pm.environment.set(\"test_user_api_key\", responseJson.apiKey);\r",
-											"pm.environment.set(\"test_user_webhook_secret\", responseJson.webhookSecret);\r",
-											"pm.environment.set(\"test_user_role\", responseJson.role);\r",
-											"})\r",
-											"\r",
-											"// 3. Check the response body contains the expected properties\r",
-											"pm.test(\"The response has all properties\", () => {\r",
-											"    pm.expect(responseJson).to.have.property(\"message\");\r",
-											"    pm.expect(responseJson).to.have.property(\"userId\");\r",
-											"    pm.expect(responseJson).to.have.property(\"apiKey\");\r",
-											"    pm.expect(responseJson).to.have.property(\"webhookSecret\");\r",
-											"    pm.expect(responseJson).to.have.property(\"role\");\r",
-											"    pm.expect(responseJson).to.have.property(\"createdAt\");\r",
-											"});\r",
-											"\r",
-											"// 4. Check the response body data types\r",
-											"pm.test(\"The response body data types are correct\", () => {\r",
-											"    pm.expect(responseJson.message).to.be.a(\"string\");\r",
-											"    pm.expect(responseJson.userId).to.be.a(\"string\");\r",
-											"    pm.expect(responseJson.apiKey).to.be.a(\"string\");\r",
-											"    pm.expect(responseJson.webhookSecret).to.be.a(\"string\");\r",
-											"    pm.expect(responseJson.role).to.be.a(\"string\");\r",
-											"    pm.expect(responseJson.createdAt).to.be.a(\"string\");\r",
-											"})\r",
-											"\r",
-											"// 5. Check if the createdAt field is a valid ISO 8601 timestamp.\r",
-											"pm.test(\"createdAt is a valid ISO 8601 timestamp\", () => {\r",
-											"    // ISO 8601 with microseconds: 2025-11-10T13:01:12.615000Z\r",
-											"    const isoRegex = /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,6})?Z$/;\r",
-											"    pm.expect(responseJson.createdAt).to.match(isoRegex);\r",
-											"});\r",
-											"\r",
-											"\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"Falcon Project\",\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"password\": \"Password123!#\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/users/register",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"users",
-										"register"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "User Login (Get user JWT Token)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"// 1. Check Status Code\r",
-											"pm.test(\"Status code is 200\", () => {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"// parse response body\r",
-											"const responseJson = pm.response.json();\r",
-											"console.log(responseJson)\r",
-											"// 2. Verify the response body contains expected properties\r",
-											"pm.test(\"Response body contains expected properties\", () => {\r",
-											"    pm.expect(responseJson).to.have.property(\"access_token\");\r",
-											"    pm.expect(responseJson).to.have.property(\"token_type\");\r",
-											"    pm.expect(responseJson).to.have.property(\"userId\");\r",
-											"    pm.expect(responseJson).to.have.property(\"role\");\r",
-											"});\r",
-											"\r",
-											"// 3. Check if the response contains the expected values\r",
-											"pm.test(\"Response body contains expected values\", () => { \r",
-											"    pm.expect(responseJson.access_token).to.not.be.empty;\r",
-											"    pm.expect(responseJson.token_type).to.equal(\"bearer\");\r",
-											"    pm.expect(responseJson.userId).to.not.be.empty;\r",
-											"    pm.expect(responseJson.role).to.not.be.empty;\r",
-											"})\r",
-											"\r",
-											"\r",
-											"// 4. Generate JWT token for the test user\r",
-											"pm.test(\"Test user JWT token is generated\", () => {\r",
-											"    pm.expect(responseJson).to.have.property(\"access_token\");\r",
-											"    pm.expect(responseJson.access_token).to.not.be.empty;\r",
-											"\r",
-											"    pm.environment.set(\"test_user_jwt\", responseJson.access_token);\r",
-											"});\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"{{test_user_email}}\",\r\n     \"password\": \"{{test_user_password}}\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/users/login",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"users",
-										"login"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Admin Login (Get admin JWT Token)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"// 1. Check Status Code\r",
-											"pm.test(\"Status code is 200\", () => {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"// parse response body\r",
-											"const responseJson = pm.response.json();\r",
-											"console.log(responseJson);\r",
-											"\r",
-											"\r",
-											"\r",
-											"// 2. Verify the response body contains expected properties\r",
-											"pm.test(\"Response body contains expected properties\", () => {\r",
-											"    pm.expect(responseJson).to.have.property(\"access_token\");\r",
-											"    pm.expect(responseJson).to.have.property(\"token_type\");\r",
-											"    pm.expect(responseJson).to.have.property(\"userId\");\r",
-											"    pm.expect(responseJson).to.have.property(\"role\");\r",
-											"});\r",
-											"\r",
-											"// 3. Check if the response contains the expected values\r",
-											"pm.test(\"Response body contains expected values\", () => { \r",
-											"    pm.expect(responseJson.access_token).to.not.be.empty;\r",
-											"    pm.expect(responseJson.token_type).to.equal(\"bearer\");\r",
-											"    pm.expect(responseJson.userId).to.not.be.empty;\r",
-											"    pm.expect(responseJson.role).to.not.be.empty;\r",
-											"})\r",
-											"\r",
-											"\r",
-											"// 4. Generate JWT token for the system admin\r",
-											"pm.test(\"System Admin JWT token is generated\", () => {\r",
-											"\r",
-											"    pm.environment.set(\"admin_jwt\", responseJson.access_token);\r",
-											"});\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"{{admin_email}}\",\r\n    // find system admin password in .env file\r\n    \"password\": \"{{admin_password}}\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/users/login",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"users",
-										"login"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Admin: Update User Role",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"// 1. Check Status Code\r",
-											"pm.test(\"Status code is 200\", () => {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"\r",
-											"// parse response body\r",
-											"const responseJson = pm.response.json();\r",
-											"console.log(\"response body = \", responseJson);\r",
-											"\r",
-											"//2.  Verify userId in response matches the target user\r",
-											"pm.test(\"Verify userId in response matches the target user\", () => { \r",
-											"    pm.expect(responseJson.userId).to.eql(pm.environment.get(\"test_user_id\"));\r",
-											"});\r",
-											"\r",
-											"// Extract new_role from request body\r",
-											"let reqBody = JSON.parse(pm.request.body.raw);\r",
-											"let newRole = reqBody.new_role;\r",
-											"// Extract current role from environment variable\r",
-											"let currentRole = pm.environment.get(\"test_user_role\");\r",
-											"\r",
-											"// Confirm updated role matches the new role in the request body\r",
-											"pm.test(\"User role updated to the correct value\", () => { \r",
-											"    pm.expect(currentRole).to.eq(newRole);\r",
-											"});\r",
-											"\r",
-											" "
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								},
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											"// Parse current request body\r",
-											"let reqBody = JSON.parse(pm.request.body.raw);\r",
-											"\r",
-											"// Extract the role that was manually entered in the request body\r",
-											"let newRole = reqBody.new_role;\r",
-											"\r",
-											"// Set Postman environment variable equal to the new role from the request body.\r",
-											"pm.environment.set(\"test_user_role\", newRole);\r",
-											"\r",
-											"console.log(\"Updated Postman variable: currentUserRole =\", newRole);\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"protocolProfileBehavior": {
-								"disabledSystemHeaders": {
-									"content-type": true
-								}
-							},
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{admin_jwt}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "PATCH",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"new_role\": \"user\"\r\n    \r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/users/{{test_user_id}}/role",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"users",
-										"{{test_user_id}}",
-										"role"
-									],
-									"query": [
-										{
-											"key": "",
-											"value": null,
-											"disabled": true
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Protected Route (Authenticated User)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"// 1. Check Response Status Code\r",
-											"pm.test(\"Response status code is 200\", () => {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"\r",
-											"const responseJson = pm.response.json();\r",
-											"\r",
-											"// 2. Validate userId and role fields\r",
-											"pm.test(\"Response body returns userId and role fields\", () => {\r",
-											"    pm.expect(responseJson.userId).to.not.be.undefined;\r",
-											"    pm.expect(responseJson.role).to.not.be.undefined;\r",
-											"});\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{test_user_jwt}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/protected",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"protected"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Negative tests Register New User",
-					"item": [
-						{
-							"name": "Missing Email Register New User",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											"if(pm.request.body && pm.request.body.raw){\r",
-											"const req = JSON.parse(pm.request.body.raw);\r",
-											"// if request body True set environment variables\r",
-											"pm.environment.set(\"test_user_name\", req.name);\r",
-											"pm.environment.set(\"test_user_email\", req.email);\r",
-											"pm.environment.set(\"test_user_password\", req.password);\r",
-											"};"
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"// 1. Check response status code\r",
-											"pm.test(\"Response Status Code 422 Unprocessable Entity\", () => {\r",
-											"    pm.response.to.have.status(422);\r",
-											"})\r",
-											"    // parse response JSON\r",
-											"    const responseJson = pm.response.json();\r",
-											"    const errorDetail = responseJson.detail[0];\r",
-											"\r",
-											"// 2. Check response structure has \"detail\"\r",
-											"pm.test(\"Response contains 'detail' array\", () => {\r",
-											"    pm.expect(responseJson).to.have.property(\"detail\");\r",
-											"    pm.expect(responseJson.detail).to.be.an(\"array\").that.is.not.empty;\r",
-											"});\r",
-											"\r",
-											"// 3. Check that the error refers to the 'email' field\r",
-											"pm.test(\"Validation error refers to 'email' field\", () => {\r",
-											"    pm.expect(errorDetail.loc).to.include(\"email\");\r",
-											"});\r",
-											"\r",
-											"// 4. Check that the error type is pattern mismatch\r",
-											"pm.test(\"Validation error type is 'string_pattern_mismatch'\", () => {\r",
-											"    pm.expect(errorDetail.type).to.equal(\"string_pattern_mismatch\");\r",
-											"});\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"Falcon Quantum01\",\r\n    \"email\": \"\",\r\n    \"password\": \"Password123!#\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/users/register",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"users",
-										"register"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Missing Name Register New User",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											"if(pm.request.body && pm.request.body.raw){\r",
-											"const req = JSON.parse(pm.request.body.raw);\r",
-											"// if request body True set environment variables\r",
-											"pm.environment.set(\"test_user_name\", req.name);\r",
-											"pm.environment.set(\"test_user_email\", req.email);\r",
-											"pm.environment.set(\"test_user_password\", req.password);\r",
-											"};"
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"// 1. Check response status code\r",
-											"pm.test(\"Response Status Code 422 Unprocessable Entity\", () => {\r",
-											"    pm.response.to.have.status(422);\r",
-											"})\r",
-											"\r",
-											"const err = pm.response.json().detail[0];\r",
-											"\r",
-											"pm.test(\"422\", () => pm.response.to.have.status(422));\r",
-											"pm.test(\"Field: name\", () => pm.expect(err.loc).to.include(\"name\"));\r",
-											"pm.test(\"Type: string_too_short\", () => pm.expect(err.type).to.equal(\"string_too_short\"));\r",
-											"pm.test(\"Min length = 2\", () => pm.expect(err.ctx.min_length).to.equal(2));\r",
-											"pm.test(\"Input is empty\", () => pm.expect(err.input).to.equal(\"\"));\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"\",\r\n    \"email\": \"falcons@quantum01.com\",\r\n    \"password\": \"Password123!#\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/users/register",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"users",
-										"register"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Missing Password Register New User",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											"if(pm.request.body && pm.request.body.raw){\r",
-											"const req = JSON.parse(pm.request.body.raw);\r",
-											"// if request body True set environment variables\r",
-											"pm.environment.set(\"test_user_name\", req.name);\r",
-											"pm.environment.set(\"test_user_email\", req.email);\r",
-											"pm.environment.set(\"test_user_password\", req.password);\r",
-											"};"
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"// 1. Check response status code\r",
-											"pm.test(\"Response Status Code 422 Unprocessable Entity\", () => {\r",
-											"    pm.response.to.have.status(422);\r",
-											"})\r",
-											"\r",
-											"const err = pm.response.json().detail[0];\r",
-											"\r",
-											"pm.test(\"Response Status Code 422 Unprocessable Entity\", () => pm.response.to.have.status(422));\r",
-											"pm.test(\"Field: password\", () => pm.expect(err.loc).to.include(\"password\"));\r",
-											"pm.test(\"Type: string_too_short\", () => pm.expect(err.type).to.equal(\"string_too_short\"));\r",
-											"pm.test(\"Min length = 8\", () => pm.expect(err.ctx.min_length).to.equal(8));\r",
-											"pm.test(\"Input is empty\", () => pm.expect(err.input).to.equal(\"\"));\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"Falcon Quantum01\",\r\n    \"email\": \"falcons@quantum01.com\",\r\n    \"password\": \"\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/users/register",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"users",
-										"register"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Negative tests User Login (Get user JWT Token)",
-					"item": [
-						{
-							"name": "Incorrect Password User Login (Get user JWT Token)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"// fetche response body as JSON object\r",
-											"const responseJSON = pm.response.json();\r",
-											"\r",
-											"// 1. Test the response is a JSON object\r",
-											"pm.test(\"Response is JSON\", () => {\r",
-											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
-											"      .to.include(\"application/json\");\r",
-											"});\r",
-											"\r",
-											"// 2. Test the response message is not empty\r",
-											" pm.test(\"Error message is not empty\", () => {\r",
-											"    pm.expect(responseJSON.detail.length).to.be.above(0);\r",
-											"});\r",
-											"\r",
-											"\r",
-											"// 3. Test response status code\r",
-											"pm.test(\"Status code is 401 Unauthorized\", () => { \r",
-											"    pm.expect(pm.response.code).to.eql(401);\r",
-											"});\r",
-											"\r",
-											"// 4. Exact error message\r",
-											"pm.test(\"Error message is 'Invalid email or password.'\", () => { \r",
-											"    pm.expect(responseJSON.detail).to.eql(\"Invalid email or password.\");\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"{{test_user_email}}\",\r\n    \"password\": \"passwordfalcon\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/users/login",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"users",
-										"login"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Missing password User Login (Get user JWT Token)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"// fetche response body as JSON object\r",
-											"const responseJSON = pm.response.json();\r",
-											"console.log('Response body = ', responseJSON.detail);\r",
-											"\r",
-											"// Extract the first error object (because detail is an array)\r",
-											"const err = pm.response.json().detail[0];\r",
-											"console.log('Error = ', err);\r",
-											"\r",
-											"// 1. Ensure API returns JSON\r",
-											"pm.test(\"Response is JSON\", () => {\r",
-											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
-											"      .to.include(\"application/json\");\r",
-											"});\r",
-											"\r",
-											"// 2.  Error message must not be empty\r",
-											" pm.test(\"Error message is not empty\", () => {\r",
-											"    pm.expect(responseJSON.detail.length).to.be.above(0);\r",
-											"});\r",
-											"\r",
-											"\r",
-											"// 3. Validate HTTP status code\r",
-											"pm.test(\"Status code is 422 Unprocessable Entity\", () => { \r",
-											"    pm.expect(pm.response.code).to.eql(422);\r",
-											"});\r",
-											"\r",
-											"// 4. Test response body contains 'detail' array\r",
-											"pm.test(\"Response contains a non-empty 'detail' array\", () => {\r",
-											"    pm.expect(responseJSON).to.have.property(\"detail\");\r",
-											"    pm.expect(responseJSON.detail).to.be.an(\"array\").that.is.not.empty;\r",
-											"});\r",
-											"\r",
-											"// 5. Check that error belongs to the 'password' field\r",
-											"pm.test(\"Error loc identifies 'password' field\", () => {\r",
-											"    pm.expect(err.loc).to.include(\"password\")\r",
-											"    });\r",
-											"\r",
-											"// 6. Check that error type is 'string_too_short'\r",
-											"pm.test(\"Error type is 'string_too_short'\", () => {\r",
-											"    pm.expect(err.type).to.eql(\"string_too_short\");\r",
-											"});\r",
-											"\r",
-											"\r",
-											"\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"{{test_user_email}}\",\r\n    \"password\": \"\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/users/login",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"users",
-										"login"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Negative Tests Admin Login",
-					"item": [
-						{
-							"name": "Missing Email Admin Login (Get admin JWT Token)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"// parse response body\r",
-											"const responseJson = pm.response.json();\r",
-											"// Extract the first error object (because detail is an array)\r",
-											"const error = pm.response.json().detail[0];\r",
-											"console.log('Error = ', error);\r",
-											"\r",
-											"// 1. Ensure API returns JSON\r",
-											"pm.test(\"Response is JSON\", () => {\r",
-											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
-											"      .to.include(\"application/json\");\r",
-											"});\r",
-											"\r",
-											"// 2.  Error message must not be empty\r",
-											" pm.test(\"Error message is not empty\", () => {\r",
-											"    pm.expect(responseJson.detail.length).to.be.above(0);\r",
-											"});\r",
-											"\r",
-											"// 3. Check Status Code\r",
-											"pm.test(\"Status code is 422 Unprocessable Entity\", () => {\r",
-											"    pm.response.to.have.status(422);\r",
-											"});\r",
-											"\r",
-											"// 4. Check response structure has \"detail\"\r",
-											"pm.test(\"Response contains 'detail' array\", () => {\r",
-											"    pm.expect(responseJson).to.have.property(\"detail\");\r",
-											"    pm.expect(responseJson.detail).to.be.an(\"array\").that.is.not.empty;\r",
-											"});\r",
-											"\r",
-											"// 5. Check that the error refers to the 'email' field\r",
-											"pm.test(\"Validation error refers to 'email' field\", () => {\r",
-											"    pm.expect(error.loc).to.include(\"email\");\r",
-											"});\r",
-											"\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"\",\r\n    // find system admin password in the project's .env file\r\n    \"password\": \"{{admin_password}}\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/users/login",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"users",
-										"login"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Missing Password Admin Login (Get admin JWT Token)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"// parse response body\r",
-											"const responseJson = pm.response.json();\r",
-											"// Extract the first error object (because detail is an array)\r",
-											"const error = pm.response.json().detail[0];\r",
-											"console.log('Error = ', error);\r",
-											"\r",
-											"// 1. Ensure API returns JSON\r",
-											"pm.test(\"Response is JSON\", () => {\r",
-											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
-											"      .to.include(\"application/json\");\r",
-											"});\r",
-											"\r",
-											"// 2.  Error message must not be empty\r",
-											" pm.test(\"Error message is not empty\", () => {\r",
-											"    pm.expect(responseJson.detail.length).to.be.above(0);\r",
-											"});\r",
-											"\r",
-											"// 3. Check Status Code\r",
-											"pm.test(\"Status code is 422 Unprocessable Entity\", () => {\r",
-											"    pm.response.to.have.status(422);\r",
-											"});\r",
-											"\r",
-											"// 4. Check response structure has \"detail\"\r",
-											"pm.test(\"Response contains 'detail' array\", () => {\r",
-											"    pm.expect(responseJson).to.have.property(\"detail\");\r",
-											"    pm.expect(responseJson.detail).to.be.an(\"array\").that.is.not.empty;\r",
-											"});\r",
-											"\r",
-											"// 5. Check that the error refers to the 'email' field\r",
-											"pm.test(\"Validation error refers to 'password' field\", () => {\r",
-											"    pm.expect(error.loc).to.include(\"password\");\r",
-											"});\r",
-											"\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"{{admin_email}}\",\r\n    // find system admin password in the project's .env file\r\n    \"password\": \"\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/users/login",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"users",
-										"login"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Negative Tests Admin Update User Role",
-					"item": [
-						{
-							"name": "Missing JWT Token Admin: Update User Role",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"// parse response body\r",
-											"const responseJson = pm.response.json();\r",
-											"\r",
-											"// 1. Check Status Code\r",
-											"pm.test(\"Status code is 401 Unauthorized\", () => {\r",
-											"    pm.response.to.have.status(401);\r",
-											"});\r",
-											"// 2. Ensure API returns JSON\r",
-											"pm.test(\"Response is JSON\", () => {\r",
-											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
-											"      .to.include(\"application/json\");\r",
-											"});\r",
-											"\r",
-											"// 3. Check if autorization header is missing\r",
-											"pm.test(\"Authorization header missing\", () => {\r",
-											"    pm.expect(responseJson.detail).to.equal(\"Authorization header missing.\");\r",
-											"});\r",
-											" console.log(\"Response body\",responseJson.detail);\r",
-											"\r",
-											"\r",
-											"\r",
-											" "
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								},
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											"\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"protocolProfileBehavior": {
-								"disabledSystemHeaders": {
-									"content-type": true
-								}
-							},
-							"request": {
-								"auth": {
-									"type": "noauth"
-								},
-								"method": "PATCH",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"new_role\": \"captain\"\r\n    \r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/users/{{test_user_id}}/role",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"users",
-										"{{test_user_id}}",
-										"role"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Invalid User Role Admin: Update User Role",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"// Test 1. Status code should be 422 for invalid role.\r",
-											"pm.test(\"Status code is 422 for invalid role\",() => {\r",
-											"    pm.response.to.have.status(422);\r",
-											"});\r",
-											"\r",
-											"// Test 2. Error type should be enum\r",
-											"//FastAPI + Pydantic always returns \"type\": \"enum\" when enum validation fails.\r",
-											"pm.test(\"Error type is enum\", () => {\r",
-											"    const detail = pm.response.json().detail[0];\r",
-											"    pm.expect(detail.type).to.eql(\"enum\");\r",
-											"});\r",
-											"\r",
-											"// Test 3. Error message should mention valid roles\r",
-											"pm.test(\"Error message lists valid roles\",() => {\r",
-											"    const detail = pm.response.json().detail[0];\r",
-											"    pm.expect(detail.msg).to.include(\"'user', 'merchant' or 'admin'\");\r",
-											"});\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								},
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"protocolProfileBehavior": {
-								"disabledSystemHeaders": {
-									"content-type": true
-								}
-							},
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{admin_jwt}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "PATCH",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"new_role\": \"captain\"\r\n    \r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/users/{{test_user_id}}/role",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"users",
-										"{{test_user_id}}",
-										"role"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Non-admin user token Admin: Update User Role",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"// Test 1. Status code should be 401 for invalid or expired token\r",
-											"pm.test(\"Status code is 401 for invalid or expired token\",() => {\r",
-											"    pm.response.to.have.status(401);\r",
-											"});\r",
-											"\r",
-											"// Test 2. Response has detail field\r",
-											"pm.test(\"Response has 'detail' field\", () => {\r",
-											"    const json = pm.response.json();\r",
-											"    pm.expect(json).to.have.property(\"detail\");\r",
-											"});\r",
-											"\r",
-											"\r",
-											"// Test 3. Error detail equals 'Invalid or expired token.'\r",
-											"pm.test(\"Error detail 'invalid or expired token'\", () => {\r",
-											"    const responseJson = pm.response.json();\r",
-											"    pm.expect(responseJson.detail).to.eql(\"Invalid or expired token.\");\r",
-											"});\r",
-											"\r",
-											"// Test 4. Response is JSON\r",
-											"pm.test(\"Response is JSON\", () => {\r",
-											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
-											"      .to.include(\"application/json\");\r",
-											"});\r",
-											"\r",
-											"//Test 5. Token error message is correct\r",
-											"pm.test(\"Token error message is correct\", () => {\r",
-											"    const msg = pm.response.json().detail;\r",
-											"    pm.expect([\"Invalid token.\", \"Token expired.\", \"Invalid or expired token.\"]).to.include(msg);\r",
-											"});\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								},
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"protocolProfileBehavior": {
-								"disabledSystemHeaders": {
-									"content-type": true
-								}
-							},
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "\"this-is-not-a-valid-jwt-token-at-all\"",
-											"type": "string"
-										}
-									]
-								},
-								"method": "PATCH",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"new_role\": \"admin\"\r\n    \r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/users/{{test_user_id}}/role",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"users",
-										"{{test_user_id}}",
-										"role"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Negative Tests Protected Route",
-					"item": [
-						{
-							"name": "No Token Protected Route (Authenticated User)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"const responseJson = pm.response.json();\r",
-											"\r",
-											"// Test 1. Check Response Status Code\r",
-											"pm.test(\"Response status code is 401 Unauthorized\", () => {\r",
-											"    pm.response.to.have.status(401);\r",
-											"});\r",
-											"\r",
-											"// Test 2.API response is JSON\r",
-											"pm.test(\"Response is JSON\", () => {\r",
-											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
-											"      .to.include(\"application/json\");\r",
-											"});\r",
-											"\r",
-											"// Test 3. Response contains 'detail' field\r",
-											"pm.test(\"Response JSON contains 'detail' field\", () => {\r",
-											"    pm.expect(responseJson).to.have.property(\"detail\");\r",
-											"});\r",
-											"\r",
-											"// Test 4. Check the response body for the expected error message.\r",
-											"pm.test(\"Response body contains ''Authorization header missing.''\", () => { \r",
-											"    pm.expect(responseJson.detail).to.eql(\"Authorization header missing.\"); \r",
-											"});\r",
-											"\r",
-											"// Test 5. Error format matches FastAPI auth error structure\r",
-											"pm.test(\"Error format matches FastAPI auth error structure\", () => {\r",
-											"    pm.expect(typeof responseJson.detail).to.eql(\"string\");\r",
-											"});\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "noauth"
-								},
-								"method": "GET",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/protected",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"protected"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Invalid Token Protected Route (Authenticated User)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"const responseJson = pm.response.json();\r",
-											"console.log(responseJson);\r",
-											"\r",
-											"// Test 1. Check Response Status Code\r",
-											"pm.test(\"Response status code is 401 Unauthorized\", () => {\r",
-											"    pm.response.to.have.status(401);\r",
-											"});\r",
-											"\r",
-											"// Test 2.API response is JSON\r",
-											"pm.test(\"Response is JSON\", () => {\r",
-											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
-											"      .to.include(\"application/json\");\r",
-											"});\r",
-											"\r",
-											"// Test 3. Response contains 'detail' field\r",
-											"pm.test(\"Response JSON contains 'detail' field\", () => {\r",
-											"    pm.expect(responseJson).to.have.property(\"detail\");\r",
-											"});\r",
-											"\r",
-											"// Test 4. Check the response body for the expected error message.\r",
-											"pm.test(\"Response body contains ''Invalid or expired token.''\", () => { \r",
-											"    pm.expect(responseJson.detail).to.eql(\"Invalid or expired token.\"); \r",
-											"});\r",
-											"\r",
-											"// Test 5. Error format matches FastAPI auth error structure\r",
-											"pm.test(\"Error format matches FastAPI auth error structure\", () => {\r",
-											"    pm.expect(typeof responseJson.detail).to.eql(\"string\");\r",
-											"});\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "Invalid_Token123_765",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/protected",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"protected"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Expired Token Protected Route (Authenticated User)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"const responseJson = pm.response.json();\r",
-											"console.log(responseJson);\r",
-											"\r",
-											"// Test 1. Check Response Status Code\r",
-											"pm.test(\"Response status code is 401 Unauthorized\", () => {\r",
-											"    pm.response.to.have.status(401);\r",
-											"});\r",
-											"\r",
-											"// Test 2.API response is JSON\r",
-											"pm.test(\"Response is JSON\", () => {\r",
-											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
-											"      .to.include(\"application/json\");\r",
-											"});\r",
-											"\r",
-											"// Test 3. Response contains 'detail' field\r",
-											"pm.test(\"Response JSON contains 'detail' field\", () => {\r",
-											"    pm.expect(responseJson).to.have.property(\"detail\");\r",
-											"});\r",
-											"\r",
-											"// Test 4. Check the response body for the expected error message.\r",
-											"pm.test(\"Response body contains ''Invalid or expired token.''\", () => { \r",
-											"    pm.expect(responseJson.detail).to.eql(\"Invalid or expired token.\"); \r",
-											"});\r",
-											"\r",
-											"// Test 5. Error format matches FastAPI auth error structure\r",
-											"pm.test(\"Error format matches FastAPI auth error structure\", () => {\r",
-											"    pm.expect(typeof responseJson.detail).to.eql(\"string\");\r",
-											"});\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzBiZTIxN2U2N2RlYSIsInJvbGUiOiJ1c2VyIiwiZW1haWwiOiJmYWxjb25zQHF1YW50dW0wMi5jb20iLCJleHAiOjEwMDAwMDAwMDB9.dummySignature",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/protected",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"protected"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				}
-			]
-		},
-		{
-			"name": "Admin & System Routes",
-			"item": [
-				{
-					"name": "Positive Tests",
-					"item": [
-						{
-							"name": "System Admin: Access Dashboard",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"const responseJson = pm.response.json();\r",
-											"\r",
-											"//Test 1. Check if the response status code is 200\r",
-											"pm.test(\"Status code is 200\", function () { \r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"\r",
-											"//Test 2. Ensure API returns JSON\r",
-											"pm.test(\"Response is JSON\", () => {\r",
-											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
-											"      .to.include(\"application/json\");\r",
-											"});\r",
-											"\r",
-											"//Test 3. Ensure access to the admin dashboard\r",
-											"pm.test(\"Access to the admin dashboard is granted\", () => {\r",
-											"    pm.expect(responseJson).to.have.property(\"message\");\r",
-											"    pm.expect(responseJson.message).to.eql(\"Welcome to the admin dashboard.\");\r",
-											"});\r",
-											"\r",
-											"//Test 4. Ensure the user role is system_admin\r",
-											"pm.test(\"User role is system_admin\", () => { \r",
-											"    pm.expect(responseJson).to.have.property(\"role\");\r",
-											"    pm.expect(responseJson.role).to.eql(\"system_admin\");\r",
-											"});\r",
-											"\r",
-											"// Test 5. The user JWT was processed and userId is present.\r",
-											"pm.test(\"JWT was processed (userId present)\", () => {\r",
-											"    pm.expect(responseJson).to.have.property(\"userId\");\r",
-											"    pm.expect(responseJson.userId).to.be.a(\"string\");\r",
-											"});\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{admin_jwt}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/admin/dashboard",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"admin",
-										"dashboard"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Negative Tests System Admin: Access Dashboard",
-					"item": [
-						{
-							"name": "Non system_admin token : Access Dashboard",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"const responseJson = pm.response.json();\r",
-											"console.log(responseJson.detail);\r",
-											"\r",
-											"/**\r",
-											" * Negative Test: Non-admin attempting to access system admin dashboard\r",
-											" * \r",
-											" * Prerequisites:\r",
-											" * - {{test_user_jwt}} must be populated (run token generation request first)\r",
-											" * \r",
-											" * Expected: 403 Forbidden - Access denied for insufficient permissions\r",
-											" */\r",
-											"\r",
-											"//Test 1. Check if the response status code is 401\r",
-											"pm.test(\"Status code is 403 for unauthorized access\", () => { \r",
-											"    pm.response.to.have.status(403);\r",
-											"});\r",
-											"\r",
-											"//Test 2. Ensure API returns JSON\r",
-											"pm.test(\"Response is JSON\", () => {\r",
-											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
-											"      .to.include(\"application/json\");\r",
-											"});\r",
-											"\r",
-											"//Test 3. Ensure access to the admin dashboard denied\r",
-											"pm.test(\"Non system_admin token, access to the admin dashboard denied\", () => {\r",
-											"    pm.expect(responseJson).to.have.property(\"detail\");\r",
-											"    pm.expect(responseJson.detail).to.equal(\"Access denied. Allowed roles: ('admin', 'system_admin')\");\r",
-											"});\r",
-											"\r",
-											"\r",
-											"//Test 4. Ensure sensitive fields are NOT returned\r",
-											"pm.test(\"Response does not leak userId, role\", () => {\r",
-											"    pm.expect(responseJson).to.not.have.property(\"userId\");\r",
-											"    pm.expect(responseJson).to.not.have.property(\"role\");\r",
-											"});\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								},
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											"// Add this to your Postman pre-request or test script:\r",
-											"console.log(\"Auth Header:\", pm.request.headers.get(\"Authorization\"));\r",
-											"console.log(\"Request URL:\", pm.request.url.toString());"
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{test_user_jwt}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [
-									{
-										"key": "Authorization",
-										"value": "{{test_user_jwt}}",
-										"type": "text",
-										"disabled": true
-									}
-								],
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/admin/dashboard",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"admin",
-										"dashboard"
-									]
-								},
-								"description": "⚠️ Prerequisites:  \nThis test requires a valid non-admin JWT token.  \nRun the \"User Login(Get User JWT)\" request first to populate the {{test_user_jwt}} variable.\n\nExpected Behavior:\n\n- Status: 403 Forbidden\n    \n- Message: Non system_admin token, access to the admin dashboard denied"
-							},
-							"response": []
-						},
-						{
-							"name": "Token not provided: Access Admin Dashboard",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"const responseJson = pm.response.json();\r",
-											"\r",
-											"//Test 1. Check if the response status code is 403\r",
-											"pm.test(\"Status code is 401 Unauthorized\", () => {\r",
-											"    pm.response.to.have.status(401);\r",
-											"});\r",
-											"\r",
-											"//Test 2. Ensure API returns JSON\r",
-											"pm.test(\"Response is JSON\", () => {\r",
-											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
-											"        .to.include(\"application/json\");\r",
-											"});\r",
-											"\r",
-											"//Test 3. Ensure access to the admin dashboard denied\r",
-											"pm.test(\"Authorization header missing\", () => {\r",
-											"    pm.expect(responseJson).to.have.property(\"detail\");\r",
-											"    pm.expect(responseJson.detail).to.be.a(\"string\");\r",
-											"    pm.expect(responseJson.detail).to.eql(\"Authorization header missing.\");\r",
-											"});\r",
-											"\r",
-											"\r",
-											"//Test 4. Ensure sensitive fields are NOT returned\r",
-											"pm.test(\"Response does not leak userId, role\", () => {\r",
-											"    pm.expect(responseJson).to.not.have.property(\"userId\");\r",
-											"    pm.expect(responseJson).to.not.have.property(\"role\");\r",
-											"});\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "noauth"
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/admin/dashboard",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"admin",
-										"dashboard"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Invalid URL : Access Admin Dashboard",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"const responseJson = pm.response.json();\r",
-											"console.log(responseJson);\r",
-											"\r",
-											"//Test 1. Check if the response status code is 404\r",
-											"pm.test(\"Status code is 404 Not Found\", () => { \r",
-											"    pm.response.to.have.status(404);\r",
-											"});\r",
-											"\r",
-											"//Test 2. Ensure API returns JSON\r",
-											"pm.test(\"Response is JSON\", () => {\r",
-											"    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
-											"      .to.include(\"application/json\");\r",
-											"});\r",
-											"\r",
-											"//Test 3. Ensure response contains the correct error message.\r",
-											"pm.test(\"404 Not Found error returned for invalid URL\", () => {\r",
-											"    pm.expect(responseJson).to.have.property(\"detail\");\r",
-											"    pm.expect(responseJson.detail).to.be.a(\"string\");\r",
-											"    pm.expect(responseJson.detail).to.eql(\"Not Found\");\r",
-											"});\r",
-											"\r",
-											"\r",
-											"//Test 4. Ensure sensitive fields are NOT returned\r",
-											"pm.test(\"Response does not leak userId, role\", () => {\r",
-											"    pm.expect(responseJson).to.not.have.property(\"userId\");\r",
-											"    pm.expect(responseJson).to.not.have.property(\"role\");\r",
-											"});\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{admin_jwt}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/admin/dashboard_wrong/path",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"admin",
-										"dashboard_wrong",
-										"path"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				}
-			]
-		},
-		{
-			"name": "Payments & Transactions",
-			"item": [
-				{
-					"name": "Positive Tests",
-					"item": [
-						{
-							"name": "Create New Payment Transaction",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"const responseJson = pm.response.json();\r",
-											"console.log(responseJson);\r",
-											"\r",
-											"// Response code is 201\r",
-											"pm.test(\"Response code is 201 Created\", () => {\r",
-											"    pm.response.to.have.status(201);\r",
-											"})\r",
-											"\r",
-											"// Response body contains the expected properties\r",
-											"pm.test(\"Response body contains the expected properties\", () => {\r",
-											"    pm.expect(responseJson).to.have.property(\"id\");\r",
-											"    pm.expect(responseJson).to.have.property(\"customerName\");\r",
-											"    pm.expect(responseJson).to.have.property(\"amount\");\r",
-											"    pm.expect(responseJson).to.have.property(\"currency\");\r",
-											"    pm.expect(responseJson).to.have.property(\"status\");\r",
-											"    pm.expect(responseJson).to.have.property(\"created\");\r",
-											"\r",
-											"})\r",
-											"\r",
-											"// Response body contains the expected values\r",
-											"pm.test(\"Response body contains the expected values\", () => {\r",
-											"    pm.expect(responseJson.id).not.to.be.empty;\r",
-											"    pm.expect(responseJson.customerName).not.to.be.empty;\r",
-											"    pm.expect(responseJson.amount).to.be.a(\"number\");\r",
-											"    pm.expect(responseJson.currency).not.to.be.empty;\r",
-											"    pm.expect(responseJson.status).to.be.oneOf([\"pending\", \"success\", \"failed\"]);\r",
-											"    pm.expect(responseJson.created).not.to.be.empty; // field is not empty\r",
-											"    pm.expect(responseJson.created).to.match(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z$/);// field matches ISO 8601 format\r",
-											"})\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "noauth"
-								},
-								"method": "POST",
-								"header": [
-									{
-										"key": "x-api-key",
-										"value": "{{test_user_api_key}}",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"customerName\": \"Falcon Quantum Invest\",\r\n    \"paymentAmount\": 10033.00,\r\n    \"currency\": \"USD\",\r\n    \"details\": \"Corporate Payment Finum Finance\",\r\n    \"webhookUrl\": \"https://webhook-test.com/23697bc2741aa52a07580c9a76ca5cf5\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/v1/payments/charge",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"payments",
-										"charge"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Retrieve All User Payments",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/payments/all",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"payments",
-								"all"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Retrieve/Filter Transactions (Query Params)",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/payments/query",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"payments",
-								"query"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Deletion Route (Users & Transactions)",
-			"item": [
-				{
-					"name": "Delete a Transaction",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/transactions/{transaction_id}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"transactions",
-								"{transaction_id}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Admin: Delete a User",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/users/{user_id}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"users",
-								"{user_id}"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Webhooks",
-			"item": [
-				{
-					"name": "Receive and Validate Webhook",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/webhook-receive",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"webhook-receive"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		}
-	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"packages": {},
-				"requests": {},
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"packages": {},
-				"requests": {},
-				"exec": [
-					""
-				]
-			}
-		}
-	]
+  "info": {
+    "_postman_id": "da5584ee-cb51-450e-8fbf-6fee94edc067",
+    "name": "Mock_payment_api",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "22804049",
+    "_collection_link": "https://go.postman.co/collection/22804049-da5584ee-cb51-450e-8fbf-6fee94edc067?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Status & Health Check",
+      "item": [
+        {
+          "name": "Positive Tests Check API Status",
+          "item": [
+            {
+              "name": "Check API Status",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Check Status Code\r",
+                      "pm.test(\"Status code is 200\", () => {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      " // 2. Check response time is less than 500ms\r",
+                      "//pm.test(\"Response time is less than 500ms\", () => {\r",
+                      "  //pm.expect(pm.response.responseTime).to.be.below(500);\r",
+                      "//});\r",
+                      "// THE ABOVE TEST IS COMMENTED OUT, THE SERVICE RESPONSE TIME IS OFTEN BELLOW THE TEST PARAMETER (Render free tier service)\r",
+                      "\r",
+                      "// 3. Check the response body contains the expected properties\r",
+                      "pm.test(\"The response has all properties\", () => {\r",
+                      "    //parse the response JSON and test the properties\r",
+                      "    const responseJson = pm.response.json();\r",
+                      "    pm.expect(responseJson).to.have.property(\"status\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"service\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"version\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"message\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"metrics\");\r",
+                      "\r",
+                      "    pm.expect(responseJson.metrics).to.have.property(\"totalTransactions\")\r",
+                      "    pm.expect(responseJson.metrics).to.have.property(\"lastRestart\");\r",
+                      "});\r",
+                      "\r",
+                      "// 4. Check the response body data types\r",
+                      "pm.test(\"The response body data types are correct\", () => {\r",
+                      "    //parse the response JSON and test the data types of the properties \r",
+                      "    const responseJson = pm.response.json();\r",
+                      "    pm.expect(responseJson.status).to.be.a(\"string\");\r",
+                      "    pm.expect(responseJson.service).to.be.a(\"string\");\r",
+                      "    pm.expect(responseJson.version).to.be.a(\"string\");\r",
+                      "    pm.expect(responseJson.message).to.be.a(\"string\");\r",
+                      "    pm.expect(responseJson.metrics.totalTransactions).to.be.a(\"number\");\r",
+                      "    pm.expect(responseJson.metrics.lastRestart).to.be.a(\"string\");\r",
+                      "})\r",
+                      "\r",
+                      "pm.test(\"lastRestart is a valid ISO 8601 timestamp\", () => {\r",
+                      "    const responseJson = pm.response.json();\r",
+                      "\r",
+                      "    // ISO 8601 with microseconds: 2025-11-10T13:01:12.615000Z\r",
+                      "    const isoRegex = /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,6})?Z$/;\r",
+                      "\r",
+                      "    pm.expect(responseJson.metrics.lastRestart).to.match(isoRegex);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "status"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Negative Tests Check API Status",
+          "item": [
+            {
+              "name": "Check API Status Invalid URL Path",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Check Status Code\r",
+                      "pm.test(\"Status code is 404\", () => {\r",
+                      "    pm.response.to.have.status(404);\r",
+                      "});\r",
+                      "\r",
+                      "//parse the response JSON and test the properties\r",
+                      "    const responseJson = pm.response.json();\r",
+                      " // 2. Check response time is less than 500ms\r",
+                      "  pm.test(\"Response time is less than 500ms\", () => {\r",
+                      "  pm.expect(pm.response.responseTime).to.be.below(500);\r",
+                      "});\r",
+                      "\r",
+                      "// 3. Check the response body contains the expected properties\r",
+                      "pm.test(\"The response has property 'detail' with a value 'string'\", () => {\r",
+                      "    pm.expect(responseJson).to.have.property(\"detail\");\r",
+                      "    pm.expect(responseJson.detail).to.be.a(\"string\");\r",
+                      "});\r",
+                      "\r",
+                      "// 4. Check the response body message\r",
+                      "pm.test(\"The response body data is correct\", () => {\r",
+                      "    pm.expect(responseJson.detail).to.equal(\"Not Found\");\r",
+                      "})\r",
+                      "\r",
+                      "\r",
+                      "\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/statu$",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "statu$"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Check API Status Wrong HTTP Method",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Check Status Code\r",
+                      "pm.test(\"Status code is 405\", () => {\r",
+                      "    pm.response.to.have.status(405);\r",
+                      "});\r",
+                      "\r",
+                      "//parse the response JSON and test the properties\r",
+                      "    const responseJson = pm.response.json();\r",
+                      " // 2. Check response time is less than 500ms\r",
+                      "pm.test(\"Response time is less than 500ms\", () => {\r",
+                      "  pm.expect(pm.response.responseTime).to.be.below(500);\r",
+                      "});\r",
+                      "\r",
+                      "// 3. Check the response body contains the expected properties\r",
+                      "pm.test(\"The response has property 'detail' with a value 'string'\", () => {\r",
+                      "    pm.expect(responseJson).to.have.property(\"detail\");\r",
+                      "    pm.expect(responseJson.detail).to.be.a(\"string\");\r",
+                      "});\r",
+                      "\r",
+                      "// 4. Check the response body message\r",
+                      "pm.test(\"The response body data is correct\", () => {\r",
+                      "    pm.expect(responseJson.detail).to.equal(\"Method Not Allowed\");\r",
+                      "})\r",
+                      "\r",
+                      "\r",
+                      "\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "status"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "User Management & Authentication",
+      "item": [
+        {
+          "name": "Positive Tests User Management & Authentication",
+          "item": [
+            {
+              "name": "Register New User",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "if (pm.request.body && pm.request.body.raw) {\r",
+                      "    const req = JSON.parse(pm.request.body.raw);\r",
+                      "\r",
+                      "    const randomEmail = pm.variables.replaceIn('{{$randomEmail}}');\r",
+                      "    const password = \"Password123!#\";\r",
+                      "\r",
+                      "    pm.environment.set(\"test_user_email\", randomEmail);\r",
+                      "    pm.environment.set(\"test_user_password\", password);\r",
+                      "\r",
+                      "    // Update request body dynamically\r",
+                      "    req.email = randomEmail;\r",
+                      "    req.password = password;\r",
+                      "\r",
+                      "    pm.request.body.raw = JSON.stringify(req);\r",
+                      "}\r",
+                      "\r",
+                      "console.log(\"Email used:\", pm.environment.get(\"test_user_email\"));\r",
+                      "console.log(\"Password used:\", pm.environment.get(\"test_user_password\"));\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Check Status Code\r",
+                      "pm.test(\"Status code is 201\", () => {\r",
+                      "    pm.response.to.have.status(201);\r",
+                      "});\r",
+                      "    //parse the response JSON body\r",
+                      "    const responseJson = pm.response.json();\r",
+                      "    console.log(responseJson);\r",
+                      "    \r",
+                      "\r",
+                      "// 2. Set environment variables for the test_user.\r",
+                      "pm.test(\"Set environment variables test_user id, api key, webhook secret, and role.  \", () => {\r",
+                      "    \r",
+                      "pm.environment.set(\"test_user_id\", responseJson.userId);\r",
+                      "pm.environment.set(\"test_user_api_key\", responseJson.apiKey);\r",
+                      "pm.environment.set(\"test_user_webhook_secret\", responseJson.webhookSecret);\r",
+                      "pm.environment.set(\"test_user_role\", responseJson.role);\r",
+                      "})\r",
+                      "\r",
+                      "// 3. Check the response body contains the expected properties\r",
+                      "pm.test(\"The response has all properties\", () => {\r",
+                      "    pm.expect(responseJson).to.have.property(\"message\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"userId\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"apiKey\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"webhookSecret\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"role\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"createdAt\");\r",
+                      "});\r",
+                      "\r",
+                      "// 4. Check the response body data types\r",
+                      "pm.test(\"The response body data types are correct\", () => {\r",
+                      "    pm.expect(responseJson.message).to.be.a(\"string\");\r",
+                      "    pm.expect(responseJson.userId).to.be.a(\"string\");\r",
+                      "    pm.expect(responseJson.apiKey).to.be.a(\"string\");\r",
+                      "    pm.expect(responseJson.webhookSecret).to.be.a(\"string\");\r",
+                      "    pm.expect(responseJson.role).to.be.a(\"string\");\r",
+                      "    pm.expect(responseJson.createdAt).to.be.a(\"string\");\r",
+                      "})\r",
+                      "\r",
+                      "// 5. Check if the createdAt field is a valid ISO 8601 timestamp.\r",
+                      "pm.test(\"createdAt is a valid ISO 8601 timestamp\", () => {\r",
+                      "    // ISO 8601 with microseconds: 2025-11-10T13:01:12.615000Z\r",
+                      "    const isoRegex = /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,6})?Z$/;\r",
+                      "    pm.expect(responseJson.createdAt).to.match(isoRegex);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"Falcon Project\",\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"password\": \"Password123!#\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/users/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "users",
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "User Login (Get user JWT Token)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Check Status Code\r",
+                      "pm.test(\"Status code is 200\", () => {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "// parse response body\r",
+                      "const responseJson = pm.response.json();\r",
+                      "console.log(responseJson)\r",
+                      "// 2. Verify the response body contains expected properties\r",
+                      "pm.test(\"Response body contains expected properties\", () => {\r",
+                      "    pm.expect(responseJson).to.have.property(\"access_token\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"token_type\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"userId\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"role\");\r",
+                      "});\r",
+                      "\r",
+                      "// 3. Check if the response contains the expected values\r",
+                      "pm.test(\"Response body contains expected values\", () => { \r",
+                      "    pm.expect(responseJson.access_token).to.not.be.empty;\r",
+                      "    pm.expect(responseJson.token_type).to.equal(\"bearer\");\r",
+                      "    pm.expect(responseJson.userId).to.not.be.empty;\r",
+                      "    pm.expect(responseJson.role).to.not.be.empty;\r",
+                      "})\r",
+                      "\r",
+                      "\r",
+                      "// 4. Generate JWT token for the test user\r",
+                      "pm.test(\"Test user JWT token is generated\", () => {\r",
+                      "    pm.expect(responseJson).to.have.property(\"access_token\");\r",
+                      "    pm.expect(responseJson.access_token).to.not.be.empty;\r",
+                      "\r",
+                      "    pm.environment.set(\"test_user_jwt\", responseJson.access_token);\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"{{test_user_email}}\",\r\n     \"password\": \"{{test_user_password}}\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/users/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "users",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Admin Login (Get admin JWT Token)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Check Status Code\r",
+                      "pm.test(\"Status code is 200\", () => {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "// parse response body\r",
+                      "const responseJson = pm.response.json();\r",
+                      "console.log(responseJson);\r",
+                      "\r",
+                      "\r",
+                      "\r",
+                      "// 2. Verify the response body contains expected properties\r",
+                      "pm.test(\"Response body contains expected properties\", () => {\r",
+                      "    pm.expect(responseJson).to.have.property(\"access_token\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"token_type\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"userId\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"role\");\r",
+                      "});\r",
+                      "\r",
+                      "// 3. Check if the response contains the expected values\r",
+                      "pm.test(\"Response body contains expected values\", () => { \r",
+                      "    pm.expect(responseJson.access_token).to.not.be.empty;\r",
+                      "    pm.expect(responseJson.token_type).to.equal(\"bearer\");\r",
+                      "    pm.expect(responseJson.userId).to.not.be.empty;\r",
+                      "    pm.expect(responseJson.role).to.not.be.empty;\r",
+                      "})\r",
+                      "\r",
+                      "\r",
+                      "// 4. Generate JWT token for the system admin\r",
+                      "pm.test(\"System Admin JWT token is generated\", () => {\r",
+                      "\r",
+                      "    pm.environment.set(\"admin_jwt\", responseJson.access_token);\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"{{admin_email}}\",\r\n    // find system admin password in .env file\r\n    \"password\": \"{{admin_password}}\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/users/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "users",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Admin: Update User Role",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Check Status Code\r",
+                      "pm.test(\"Status code is 200\", () => {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "// parse response body\r",
+                      "const responseJson = pm.response.json();\r",
+                      "console.log(\"response body = \", responseJson);\r",
+                      "\r",
+                      "//2.  Verify userId in response matches the target user\r",
+                      "pm.test(\"Verify userId in response matches the target user\", () => { \r",
+                      "    pm.expect(responseJson.userId).to.eql(pm.environment.get(\"test_user_id\"));\r",
+                      "});\r",
+                      "\r",
+                      "// Extract new_role from request body\r",
+                      "let reqBody = JSON.parse(pm.request.body.raw);\r",
+                      "let newRole = reqBody.new_role;\r",
+                      "// Extract current role from environment variable\r",
+                      "let currentRole = pm.environment.get(\"test_user_role\");\r",
+                      "\r",
+                      "// Confirm updated role matches the new role in the request body\r",
+                      "pm.test(\"User role updated to the correct value\", () => { \r",
+                      "    pm.expect(currentRole).to.eq(newRole);\r",
+                      "});\r",
+                      "\r",
+                      " "
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "// Parse current request body\r",
+                      "let reqBody = JSON.parse(pm.request.body.raw);\r",
+                      "\r",
+                      "// Extract the role that was manually entered in the request body\r",
+                      "let newRole = reqBody.new_role;\r",
+                      "\r",
+                      "// Set Postman environment variable equal to the new role from the request body.\r",
+                      "pm.environment.set(\"test_user_role\", newRole);\r",
+                      "\r",
+                      "console.log(\"Updated Postman variable: currentUserRole =\", newRole);\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disabledSystemHeaders": {
+                  "content-type": true
+                }
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_jwt}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"new_role\": \"user\"\r\n    \r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/users/{{test_user_id}}/role",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "users",
+                    "{{test_user_id}}",
+                    "role"
+                  ],
+                  "query": [
+                    {
+                      "key": "",
+                      "value": null,
+                      "type": "text",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Protected Route (Authenticated User)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Check Response Status Code\r",
+                      "pm.test(\"Response status code is 200\", () => {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "const responseJson = pm.response.json();\r",
+                      "\r",
+                      "// 2. Validate userId and role fields\r",
+                      "pm.test(\"Response body returns userId and role fields\", () => {\r",
+                      "    pm.expect(responseJson.userId).to.not.be.undefined;\r",
+                      "    pm.expect(responseJson.role).to.not.be.undefined;\r",
+                      "});\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{test_user_jwt}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/protected",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "protected"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Negative tests Register New User",
+          "item": [
+            {
+              "name": "Missing Email Register New User",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "if(pm.request.body && pm.request.body.raw){\r",
+                      "const req = JSON.parse(pm.request.body.raw);\r",
+                      "// if request body True set environment variables\r",
+                      "pm.environment.set(\"test_user_name\", req.name);\r",
+                      "pm.environment.set(\"test_user_email\", req.email);\r",
+                      "pm.environment.set(\"test_user_password\", req.password);\r",
+                      "};"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Check response status code\r",
+                      "pm.test(\"Response Status Code 422 Unprocessable Entity\", () => {\r",
+                      "    pm.response.to.have.status(422);\r",
+                      "})\r",
+                      "    // parse response JSON\r",
+                      "    const responseJson = pm.response.json();\r",
+                      "    const errorDetail = responseJson.detail[0];\r",
+                      "\r",
+                      "// 2. Check response structure has \"detail\"\r",
+                      "pm.test(\"Response contains 'detail' array\", () => {\r",
+                      "    pm.expect(responseJson).to.have.property(\"detail\");\r",
+                      "    pm.expect(responseJson.detail).to.be.an(\"array\").that.is.not.empty;\r",
+                      "});\r",
+                      "\r",
+                      "// 3. Check that the error refers to the 'email' field\r",
+                      "pm.test(\"Validation error refers to 'email' field\", () => {\r",
+                      "    pm.expect(errorDetail.loc).to.include(\"email\");\r",
+                      "});\r",
+                      "\r",
+                      "// 4. Check that the error type is pattern mismatch\r",
+                      "pm.test(\"Validation error type is 'string_pattern_mismatch'\", () => {\r",
+                      "    pm.expect(errorDetail.type).to.equal(\"string_pattern_mismatch\");\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"Falcon Quantum01\",\r\n    \"email\": \"\",\r\n    \"password\": \"Password123!#\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/users/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "users",
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Missing Name Register New User",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "if(pm.request.body && pm.request.body.raw){\r",
+                      "const req = JSON.parse(pm.request.body.raw);\r",
+                      "// if request body True set environment variables\r",
+                      "pm.environment.set(\"test_user_name\", req.name);\r",
+                      "pm.environment.set(\"test_user_email\", req.email);\r",
+                      "pm.environment.set(\"test_user_password\", req.password);\r",
+                      "};"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Check response status code\r",
+                      "pm.test(\"Response Status Code 422 Unprocessable Entity\", () => {\r",
+                      "    pm.response.to.have.status(422);\r",
+                      "})\r",
+                      "\r",
+                      "const err = pm.response.json().detail[0];\r",
+                      "\r",
+                      "pm.test(\"422\", () => pm.response.to.have.status(422));\r",
+                      "pm.test(\"Field: name\", () => pm.expect(err.loc).to.include(\"name\"));\r",
+                      "pm.test(\"Type: string_too_short\", () => pm.expect(err.type).to.equal(\"string_too_short\"));\r",
+                      "pm.test(\"Min length = 2\", () => pm.expect(err.ctx.min_length).to.equal(2));\r",
+                      "pm.test(\"Input is empty\", () => pm.expect(err.input).to.equal(\"\"));\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"\",\r\n    \"email\": \"falcons@quantum01.com\",\r\n    \"password\": \"Password123!#\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/users/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "users",
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Missing Password Register New User",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "if(pm.request.body && pm.request.body.raw){\r",
+                      "const req = JSON.parse(pm.request.body.raw);\r",
+                      "// if request body True set environment variables\r",
+                      "pm.environment.set(\"test_user_name\", req.name);\r",
+                      "pm.environment.set(\"test_user_email\", req.email);\r",
+                      "pm.environment.set(\"test_user_password\", req.password);\r",
+                      "};"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Check response status code\r",
+                      "pm.test(\"Response Status Code 422 Unprocessable Entity\", () => {\r",
+                      "    pm.response.to.have.status(422);\r",
+                      "})\r",
+                      "\r",
+                      "const err = pm.response.json().detail[0];\r",
+                      "\r",
+                      "pm.test(\"Response Status Code 422 Unprocessable Entity\", () => pm.response.to.have.status(422));\r",
+                      "pm.test(\"Field: password\", () => pm.expect(err.loc).to.include(\"password\"));\r",
+                      "pm.test(\"Type: string_too_short\", () => pm.expect(err.type).to.equal(\"string_too_short\"));\r",
+                      "pm.test(\"Min length = 8\", () => pm.expect(err.ctx.min_length).to.equal(8));\r",
+                      "pm.test(\"Input is empty\", () => pm.expect(err.input).to.equal(\"\"));\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"Falcon Quantum01\",\r\n    \"email\": \"falcons@quantum01.com\",\r\n    \"password\": \"\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/users/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "users",
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Negative tests User Login (Get user JWT Token)",
+          "item": [
+            {
+              "name": "Incorrect Password User Login (Get user JWT Token)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// fetche response body as JSON object\r",
+                      "const responseJSON = pm.response.json();\r",
+                      "\r",
+                      "// 1. Test the response is a JSON object\r",
+                      "pm.test(\"Response is JSON\", () => {\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+                      "      .to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "// 2. Test the response message is not empty\r",
+                      " pm.test(\"Error message is not empty\", () => {\r",
+                      "    pm.expect(responseJSON.detail.length).to.be.above(0);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "// 3. Test response status code\r",
+                      "pm.test(\"Status code is 401 Unauthorized\", () => { \r",
+                      "    pm.expect(pm.response.code).to.eql(401);\r",
+                      "});\r",
+                      "\r",
+                      "// 4. Exact error message\r",
+                      "pm.test(\"Error message is 'Invalid email or password.'\", () => { \r",
+                      "    pm.expect(responseJSON.detail).to.eql(\"Invalid email or password.\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"{{test_user_email}}\",\r\n    \"password\": \"passwordfalcon\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/users/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "users",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Missing password User Login (Get user JWT Token)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// fetche response body as JSON object\r",
+                      "const responseJSON = pm.response.json();\r",
+                      "console.log('Response body = ', responseJSON.detail);\r",
+                      "\r",
+                      "// Extract the first error object (because detail is an array)\r",
+                      "const err = pm.response.json().detail[0];\r",
+                      "console.log('Error = ', err);\r",
+                      "\r",
+                      "// 1. Ensure API returns JSON\r",
+                      "pm.test(\"Response is JSON\", () => {\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+                      "      .to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "// 2.  Error message must not be empty\r",
+                      " pm.test(\"Error message is not empty\", () => {\r",
+                      "    pm.expect(responseJSON.detail.length).to.be.above(0);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "// 3. Validate HTTP status code\r",
+                      "pm.test(\"Status code is 422 Unprocessable Entity\", () => { \r",
+                      "    pm.expect(pm.response.code).to.eql(422);\r",
+                      "});\r",
+                      "\r",
+                      "// 4. Test response body contains 'detail' array\r",
+                      "pm.test(\"Response contains a non-empty 'detail' array\", () => {\r",
+                      "    pm.expect(responseJSON).to.have.property(\"detail\");\r",
+                      "    pm.expect(responseJSON.detail).to.be.an(\"array\").that.is.not.empty;\r",
+                      "});\r",
+                      "\r",
+                      "// 5. Check that error belongs to the 'password' field\r",
+                      "pm.test(\"Error loc identifies 'password' field\", () => {\r",
+                      "    pm.expect(err.loc).to.include(\"password\")\r",
+                      "    });\r",
+                      "\r",
+                      "// 6. Check that error type is 'string_too_short'\r",
+                      "pm.test(\"Error type is 'string_too_short'\", () => {\r",
+                      "    pm.expect(err.type).to.eql(\"string_too_short\");\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"{{test_user_email}}\",\r\n    \"password\": \"\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/users/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "users",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Negative Tests Admin Login",
+          "item": [
+            {
+              "name": "Missing Email Admin Login (Get admin JWT Token)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// parse response body\r",
+                      "const responseJson = pm.response.json();\r",
+                      "// Extract the first error object (because detail is an array)\r",
+                      "const error = pm.response.json().detail[0];\r",
+                      "console.log('Error = ', error);\r",
+                      "\r",
+                      "// 1. Ensure API returns JSON\r",
+                      "pm.test(\"Response is JSON\", () => {\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+                      "      .to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "// 2.  Error message must not be empty\r",
+                      " pm.test(\"Error message is not empty\", () => {\r",
+                      "    pm.expect(responseJson.detail.length).to.be.above(0);\r",
+                      "});\r",
+                      "\r",
+                      "// 3. Check Status Code\r",
+                      "pm.test(\"Status code is 422 Unprocessable Entity\", () => {\r",
+                      "    pm.response.to.have.status(422);\r",
+                      "});\r",
+                      "\r",
+                      "// 4. Check response structure has \"detail\"\r",
+                      "pm.test(\"Response contains 'detail' array\", () => {\r",
+                      "    pm.expect(responseJson).to.have.property(\"detail\");\r",
+                      "    pm.expect(responseJson.detail).to.be.an(\"array\").that.is.not.empty;\r",
+                      "});\r",
+                      "\r",
+                      "// 5. Check that the error refers to the 'email' field\r",
+                      "pm.test(\"Validation error refers to 'email' field\", () => {\r",
+                      "    pm.expect(error.loc).to.include(\"email\");\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"\",\r\n    // find system admin password in the project's .env file\r\n    \"password\": \"{{admin_password}}\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/users/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "users",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Missing Password Admin Login (Get admin JWT Token)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// parse response body\r",
+                      "const responseJson = pm.response.json();\r",
+                      "// Extract the first error object (because detail is an array)\r",
+                      "const error = pm.response.json().detail[0];\r",
+                      "console.log('Error = ', error);\r",
+                      "\r",
+                      "// 1. Ensure API returns JSON\r",
+                      "pm.test(\"Response is JSON\", () => {\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+                      "      .to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "// 2.  Error message must not be empty\r",
+                      " pm.test(\"Error message is not empty\", () => {\r",
+                      "    pm.expect(responseJson.detail.length).to.be.above(0);\r",
+                      "});\r",
+                      "\r",
+                      "// 3. Check Status Code\r",
+                      "pm.test(\"Status code is 422 Unprocessable Entity\", () => {\r",
+                      "    pm.response.to.have.status(422);\r",
+                      "});\r",
+                      "\r",
+                      "// 4. Check response structure has \"detail\"\r",
+                      "pm.test(\"Response contains 'detail' array\", () => {\r",
+                      "    pm.expect(responseJson).to.have.property(\"detail\");\r",
+                      "    pm.expect(responseJson.detail).to.be.an(\"array\").that.is.not.empty;\r",
+                      "});\r",
+                      "\r",
+                      "// 5. Check that the error refers to the 'email' field\r",
+                      "pm.test(\"Validation error refers to 'password' field\", () => {\r",
+                      "    pm.expect(error.loc).to.include(\"password\");\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"{{admin_email}}\",\r\n    // find system admin password in the project's .env file\r\n    \"password\": \"\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/users/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "users",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Negative Tests Admin Update User Role",
+          "item": [
+            {
+              "name": "Missing JWT Token Admin: Update User Role",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// parse response body\r",
+                      "const responseJson = pm.response.json();\r",
+                      "\r",
+                      "// 1. Check Status Code\r",
+                      "pm.test(\"Status code is 401 Unauthorized\", () => {\r",
+                      "    pm.response.to.have.status(401);\r",
+                      "});\r",
+                      "// 2. Ensure API returns JSON\r",
+                      "pm.test(\"Response is JSON\", () => {\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+                      "      .to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "// 3. Check if autorization header is missing\r",
+                      "pm.test(\"Authorization header missing\", () => {\r",
+                      "    pm.expect(responseJson.detail).to.equal(\"Authorization header missing.\");\r",
+                      "});\r",
+                      " console.log(\"Response body\",responseJson.detail);\r",
+                      "\r",
+                      "\r",
+                      "\r",
+                      " "
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disabledSystemHeaders": {
+                  "content-type": true
+                }
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"new_role\": \"captain\"\r\n    \r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/users/{{test_user_id}}/role",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "users",
+                    "{{test_user_id}}",
+                    "role"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Invalid User Role Admin: Update User Role",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// Test 1. Status code should be 422 for invalid role.\r",
+                      "pm.test(\"Status code is 422 for invalid role\",() => {\r",
+                      "    pm.response.to.have.status(422);\r",
+                      "});\r",
+                      "\r",
+                      "// Test 2. Error type should be enum\r",
+                      "//FastAPI + Pydantic always returns \"type\": \"enum\" when enum validation fails.\r",
+                      "pm.test(\"Error type is enum\", () => {\r",
+                      "    const detail = pm.response.json().detail[0];\r",
+                      "    pm.expect(detail.type).to.eql(\"enum\");\r",
+                      "});\r",
+                      "\r",
+                      "// Test 3. Error message should mention valid roles\r",
+                      "pm.test(\"Error message lists valid roles\",() => {\r",
+                      "    const detail = pm.response.json().detail[0];\r",
+                      "    pm.expect(detail.msg).to.include(\"'user', 'merchant' or 'admin'\");\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disabledSystemHeaders": {
+                  "content-type": true
+                }
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_jwt}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"new_role\": \"captain\"\r\n    \r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/users/{{test_user_id}}/role",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "users",
+                    "{{test_user_id}}",
+                    "role"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Non-admin user token Admin: Update User Role",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// Test 1. Status code should be 401 for invalid or expired token\r",
+                      "pm.test(\"Status code is 401 for invalid or expired token\",() => {\r",
+                      "    pm.response.to.have.status(401);\r",
+                      "});\r",
+                      "\r",
+                      "// Test 2. Response has detail field\r",
+                      "pm.test(\"Response has 'detail' field\", () => {\r",
+                      "    const json = pm.response.json();\r",
+                      "    pm.expect(json).to.have.property(\"detail\");\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "// Test 3. Error detail equals 'Invalid or expired token.'\r",
+                      "pm.test(\"Error detail 'invalid or expired token'\", () => {\r",
+                      "    const responseJson = pm.response.json();\r",
+                      "    pm.expect(responseJson.detail).to.eql(\"Invalid or expired token.\");\r",
+                      "});\r",
+                      "\r",
+                      "// Test 4. Response is JSON\r",
+                      "pm.test(\"Response is JSON\", () => {\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+                      "      .to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "//Test 5. Token error message is correct\r",
+                      "pm.test(\"Token error message is correct\", () => {\r",
+                      "    const msg = pm.response.json().detail;\r",
+                      "    pm.expect([\"Invalid token.\", \"Token expired.\", \"Invalid or expired token.\"]).to.include(msg);\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disabledSystemHeaders": {
+                  "content-type": true
+                }
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "\"this-is-not-a-valid-jwt-token-at-all\"",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"new_role\": \"admin\"\r\n    \r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/users/{{test_user_id}}/role",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "users",
+                    "{{test_user_id}}",
+                    "role"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Negative Tests Protected Route",
+          "item": [
+            {
+              "name": "No Token Protected Route (Authenticated User)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const responseJson = pm.response.json();\r",
+                      "\r",
+                      "// Test 1. Check Response Status Code\r",
+                      "pm.test(\"Response status code is 401 Unauthorized\", () => {\r",
+                      "    pm.response.to.have.status(401);\r",
+                      "});\r",
+                      "\r",
+                      "// Test 2.API response is JSON\r",
+                      "pm.test(\"Response is JSON\", () => {\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+                      "      .to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "// Test 3. Response contains 'detail' field\r",
+                      "pm.test(\"Response JSON contains 'detail' field\", () => {\r",
+                      "    pm.expect(responseJson).to.have.property(\"detail\");\r",
+                      "});\r",
+                      "\r",
+                      "// Test 4. Check the response body for the expected error message.\r",
+                      "pm.test(\"Response body contains ''Authorization header missing.''\", () => { \r",
+                      "    pm.expect(responseJson.detail).to.eql(\"Authorization header missing.\"); \r",
+                      "});\r",
+                      "\r",
+                      "// Test 5. Error format matches FastAPI auth error structure\r",
+                      "pm.test(\"Error format matches FastAPI auth error structure\", () => {\r",
+                      "    pm.expect(typeof responseJson.detail).to.eql(\"string\");\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/protected",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "protected"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Invalid Token Protected Route (Authenticated User)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const responseJson = pm.response.json();\r",
+                      "console.log(responseJson);\r",
+                      "\r",
+                      "// Test 1. Check Response Status Code\r",
+                      "pm.test(\"Response status code is 401 Unauthorized\", () => {\r",
+                      "    pm.response.to.have.status(401);\r",
+                      "});\r",
+                      "\r",
+                      "// Test 2.API response is JSON\r",
+                      "pm.test(\"Response is JSON\", () => {\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+                      "      .to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "// Test 3. Response contains 'detail' field\r",
+                      "pm.test(\"Response JSON contains 'detail' field\", () => {\r",
+                      "    pm.expect(responseJson).to.have.property(\"detail\");\r",
+                      "});\r",
+                      "\r",
+                      "// Test 4. Check the response body for the expected error message.\r",
+                      "pm.test(\"Response body contains ''Invalid or expired token.''\", () => { \r",
+                      "    pm.expect(responseJson.detail).to.eql(\"Invalid or expired token.\"); \r",
+                      "});\r",
+                      "\r",
+                      "// Test 5. Error format matches FastAPI auth error structure\r",
+                      "pm.test(\"Error format matches FastAPI auth error structure\", () => {\r",
+                      "    pm.expect(typeof responseJson.detail).to.eql(\"string\");\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "Invalid_Token123_765",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/protected",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "protected"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Expired Token Protected Route (Authenticated User)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const responseJson = pm.response.json();\r",
+                      "console.log(responseJson);\r",
+                      "\r",
+                      "// Test 1. Check Response Status Code\r",
+                      "pm.test(\"Response status code is 401 Unauthorized\", () => {\r",
+                      "    pm.response.to.have.status(401);\r",
+                      "});\r",
+                      "\r",
+                      "// Test 2.API response is JSON\r",
+                      "pm.test(\"Response is JSON\", () => {\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+                      "      .to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "// Test 3. Response contains 'detail' field\r",
+                      "pm.test(\"Response JSON contains 'detail' field\", () => {\r",
+                      "    pm.expect(responseJson).to.have.property(\"detail\");\r",
+                      "});\r",
+                      "\r",
+                      "// Test 4. Check the response body for the expected error message.\r",
+                      "pm.test(\"Response body contains ''Invalid or expired token.''\", () => { \r",
+                      "    pm.expect(responseJson.detail).to.eql(\"Invalid or expired token.\"); \r",
+                      "});\r",
+                      "\r",
+                      "// Test 5. Error format matches FastAPI auth error structure\r",
+                      "pm.test(\"Error format matches FastAPI auth error structure\", () => {\r",
+                      "    pm.expect(typeof responseJson.detail).to.eql(\"string\");\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzBiZTIxN2U2N2RlYSIsInJvbGUiOiJ1c2VyIiwiZW1haWwiOiJmYWxjb25zQHF1YW50dW0wMi5jb20iLCJleHAiOjEwMDAwMDAwMDB9.dummySignature",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/protected",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "protected"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin & System Routes",
+      "item": [
+        {
+          "name": "Positive Tests",
+          "item": [
+            {
+              "name": "System Admin: Access Dashboard",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const responseJson = pm.response.json();\r",
+                      "\r",
+                      "//Test 1. Check if the response status code is 200\r",
+                      "pm.test(\"Status code is 200\", function () { \r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "//Test 2. Ensure API returns JSON\r",
+                      "pm.test(\"Response is JSON\", () => {\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+                      "      .to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "//Test 3. Ensure access to the admin dashboard\r",
+                      "pm.test(\"Access to the admin dashboard is granted\", () => {\r",
+                      "    pm.expect(responseJson).to.have.property(\"message\");\r",
+                      "    pm.expect(responseJson.message).to.eql(\"Welcome to the admin dashboard.\");\r",
+                      "});\r",
+                      "\r",
+                      "//Test 4. Ensure the user role is system_admin\r",
+                      "pm.test(\"User role is system_admin\", () => { \r",
+                      "    pm.expect(responseJson).to.have.property(\"role\");\r",
+                      "    pm.expect(responseJson.role).to.eql(\"system_admin\");\r",
+                      "});\r",
+                      "\r",
+                      "// Test 5. The user JWT was processed and userId is present.\r",
+                      "pm.test(\"JWT was processed (userId present)\", () => {\r",
+                      "    pm.expect(responseJson).to.have.property(\"userId\");\r",
+                      "    pm.expect(responseJson.userId).to.be.a(\"string\");\r",
+                      "});\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_jwt}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/dashboard",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "dashboard"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Negative Tests System Admin: Access Dashboard",
+          "item": [
+            {
+              "name": "Non system_admin token : Access Dashboard",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const responseJson = pm.response.json();\r",
+                      "console.log(responseJson.detail);\r",
+                      "\r",
+                      "/**\r",
+                      " * Negative Test: Non-admin attempting to access system admin dashboard\r",
+                      " * \r",
+                      " * Prerequisites:\r",
+                      " * - {{test_user_jwt}} must be populated (run token generation request first)\r",
+                      " * \r",
+                      " * Expected: 403 Forbidden - Access denied for insufficient permissions\r",
+                      " */\r",
+                      "\r",
+                      "//Test 1. Check if the response status code is 401\r",
+                      "pm.test(\"Status code is 403 for unauthorized access\", () => { \r",
+                      "    pm.response.to.have.status(403);\r",
+                      "});\r",
+                      "\r",
+                      "//Test 2. Ensure API returns JSON\r",
+                      "pm.test(\"Response is JSON\", () => {\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+                      "      .to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "//Test 3. Ensure access to the admin dashboard denied\r",
+                      "pm.test(\"Non system_admin token, access to the admin dashboard denied\", () => {\r",
+                      "    pm.expect(responseJson).to.have.property(\"detail\");\r",
+                      "    pm.expect(responseJson.detail).to.equal(\"Access denied. Allowed roles: ('admin', 'system_admin')\");\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "//Test 4. Ensure sensitive fields are NOT returned\r",
+                      "pm.test(\"Response does not leak userId, role\", () => {\r",
+                      "    pm.expect(responseJson).to.not.have.property(\"userId\");\r",
+                      "    pm.expect(responseJson).to.not.have.property(\"role\");\r",
+                      "});\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "// Add this to your Postman pre-request or test script:\r",
+                      "console.log(\"Auth Header:\", pm.request.headers.get(\"Authorization\"));\r",
+                      "console.log(\"Request URL:\", pm.request.url.toString());"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{test_user_jwt}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "{{test_user_jwt}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/dashboard",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "dashboard"
+                  ]
+                },
+                "description": "⚠️ Prerequisites:  \nThis test requires a valid non-admin JWT token.  \nRun the \"User Login(Get User JWT)\" request first to populate the {{test_user_jwt}} variable.\n\nExpected Behavior:\n\n- Status: 403 Forbidden\n    \n- Message: Non system_admin token, access to the admin dashboard denied"
+              },
+              "response": []
+            },
+            {
+              "name": "Token not provided: Access Admin Dashboard",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const responseJson = pm.response.json();\r",
+                      "\r",
+                      "//Test 1. Check if the response status code is 403\r",
+                      "pm.test(\"Status code is 401 Unauthorized\", () => {\r",
+                      "    pm.response.to.have.status(401);\r",
+                      "});\r",
+                      "\r",
+                      "//Test 2. Ensure API returns JSON\r",
+                      "pm.test(\"Response is JSON\", () => {\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+                      "        .to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "//Test 3. Ensure access to the admin dashboard denied\r",
+                      "pm.test(\"Authorization header missing\", () => {\r",
+                      "    pm.expect(responseJson).to.have.property(\"detail\");\r",
+                      "    pm.expect(responseJson.detail).to.be.a(\"string\");\r",
+                      "    pm.expect(responseJson.detail).to.eql(\"Authorization header missing.\");\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "//Test 4. Ensure sensitive fields are NOT returned\r",
+                      "pm.test(\"Response does not leak userId, role\", () => {\r",
+                      "    pm.expect(responseJson).to.not.have.property(\"userId\");\r",
+                      "    pm.expect(responseJson).to.not.have.property(\"role\");\r",
+                      "});\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/dashboard",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "dashboard"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Invalid URL : Access Admin Dashboard",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const responseJson = pm.response.json();\r",
+                      "console.log(responseJson);\r",
+                      "\r",
+                      "//Test 1. Check if the response status code is 404\r",
+                      "pm.test(\"Status code is 404 Not Found\", () => { \r",
+                      "    pm.response.to.have.status(404);\r",
+                      "});\r",
+                      "\r",
+                      "//Test 2. Ensure API returns JSON\r",
+                      "pm.test(\"Response is JSON\", () => {\r",
+                      "    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+                      "      .to.include(\"application/json\");\r",
+                      "});\r",
+                      "\r",
+                      "//Test 3. Ensure response contains the correct error message.\r",
+                      "pm.test(\"404 Not Found error returned for invalid URL\", () => {\r",
+                      "    pm.expect(responseJson).to.have.property(\"detail\");\r",
+                      "    pm.expect(responseJson.detail).to.be.a(\"string\");\r",
+                      "    pm.expect(responseJson.detail).to.eql(\"Not Found\");\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "//Test 4. Ensure sensitive fields are NOT returned\r",
+                      "pm.test(\"Response does not leak userId, role\", () => {\r",
+                      "    pm.expect(responseJson).to.not.have.property(\"userId\");\r",
+                      "    pm.expect(responseJson).to.not.have.property(\"role\");\r",
+                      "});\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_jwt}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/dashboard_wrong/path",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "dashboard_wrong",
+                    "path"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Payments & Transactions",
+      "item": [
+        {
+          "name": "Positive Tests",
+          "item": [
+            {
+              "name": "Create New Payment Transaction",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const responseJson = pm.response.json();\r",
+                      "\r",
+                      "// Response code is 201\r",
+                      "pm.test(\"Response code is 201 Created\", () => {\r",
+                      "    pm.response.to.have.status(201);\r",
+                      "})\r",
+                      "\r",
+                      "// Response body contains the expected properties\r",
+                      "pm.test(\"Response body contains the expected properties\", () => {\r",
+                      "    pm.expect(responseJson).to.have.property(\"id\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"customerName\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"amount\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"currency\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"status\");\r",
+                      "    pm.expect(responseJson).to.have.property(\"created\");\r",
+                      "\r",
+                      "})\r",
+                      "\r",
+                      "// Response body contains the expected values\r",
+                      "pm.test(\"Response body contains the expected values\", () => {\r",
+                      "    pm.expect(responseJson.id).not.to.be.empty;\r",
+                      "    pm.expect(responseJson.customerName).not.to.be.empty;\r",
+                      "    pm.expect(responseJson.amount).to.be.a(\"number\");\r",
+                      "    pm.expect(responseJson.currency).not.to.be.empty;\r",
+                      "    pm.expect(responseJson.status).to.be.oneOf([\"pending\", \"success\", \"failed\"]);\r",
+                      "    pm.expect(responseJson.created).not.to.be.empty; // field is not empty\r",
+                      "    pm.expect(responseJson.created).to.match(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z$/);// field matches ISO 8601 format\r",
+                      "})\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-api-key",
+                    "value": "{{test_user_api_key}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"customerName\": \"Falcon Project\",\r\n    \"paymentAmount\": 10022.00,\r\n    \"currency\": \"USD\",\r\n    \"details\": \"Corporate Payment Finum Finance\",\r\n    \"webhookUrl\": \"https://testhooks.org/04c7b352-55a2-4c84-bcd9-163d15d16a73\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/payments/charge",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "payments",
+                    "charge"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Retrieve All User Payments",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();\r",
+                  "console.log(responseJson);\r",
+                  "\r",
+                  "// status code is 200\r",
+                  "pm.test(\"Status code is 200\", () => {\r",
+                  "   pm.response.to.have.status(200);\r",
+                  "})\r",
+                  "\r",
+                  "// response body contains the expected properties\r",
+                  "pm.test(\"Response body contains the expected properties\", () => {\r",
+                  "      pm.expect(responseJson).to.have.property(\"userId\");\r",
+                  "      pm.expect(responseJson).to.have.property(\"totalTransactions\");\r",
+                  "      pm.expect(responseJson).to.have.property(\"transactions\");\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{test_user_api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "all"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Retrieve/Filter Transactions (Query Params)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/query",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "query"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Deletion Route (Users & Transactions)",
+      "item": [
+        {
+          "name": "Delete a Transaction",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/transactions/{transaction_id}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transactions",
+                "{transaction_id}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin: Delete a User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{user_id}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{user_id}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "item": [
+        {
+          "name": "Receive & Validate Webhook",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/webhook-receive",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "webhook-receive"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
 }
