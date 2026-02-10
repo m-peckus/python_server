@@ -96,7 +96,7 @@ curl -X POST "https://mock-payment-api-v7a7.onrender.com/api/v1/users/register" 
 -d '{
     "name": "Acme Finance",
     "email": "acme@office.com",
-    "password": "Password123!"
+    "password": "Password123!#"
 }'
 ```
 
@@ -129,7 +129,7 @@ curl -X POST "https://mock-payment-api-v7a7.onrender.com/api/v1/users/login" \
 -H "Content-Type: application/json" \
 -d '{
     "email": "acme@office.com",
-    "password": "Password123!"
+    "password": "Password123!#"
 }'
 ```
 **Request (System Admin):**  
