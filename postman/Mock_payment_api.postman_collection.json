@@ -2179,7 +2179,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"customerName\": \"Falcon Project\",\r\n    \"paymentAmount\": 10022.00,\r\n    \"currency\": \"USD\",\r\n    \"details\": \"Corporate Payment Finum Finance\",\r\n    \"webhookUrl\": \"https://testhooks.org/04c7b352-55a2-4c84-bcd9-163d15d16a73\"\r\n}",
+                  "raw": "{\r\n    \"customerName\": \"Falcon Project\",\r\n    \"paymentAmount\": 100.00,\r\n    \"currency\": \"USD\",\r\n    \"details\": \"Corporate Payment Finum Finance\",\r\n    \"webhookUrl\": \"https://testhooks.org/04c7b352-55a2-4c84-bcd9-163d15d16a73\"\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -2257,7 +2257,7 @@
           "response": []
         },
         {
-          "name": "Retrieve/Filter Transactions (Query Params)",
+          "name": "Retrieve/Filter Transactions (Query params)",
           "request": {
             "method": "GET",
             "header": [],
